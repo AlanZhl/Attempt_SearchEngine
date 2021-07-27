@@ -1,4 +1,6 @@
 from flask import Blueprint, render_template, request
+from app.utils import checkExistence
+from app.models import db, Users
 
 users = Blueprint("users", __name__)
 
@@ -11,15 +13,18 @@ def register():
         email = request.form["email"]
         password = request.form["password"]
 
-        errors = []
+        # post-check on the request form
+        errors = checkExistence(name, email)
         if role == "":
             errors.append("Role of the user must be specified.")
-        if len(password) < 8 or len(password) > 20:
-            errors.append("Length of your password must be within 8 and 20 characters.")
         
         if len(errors) > 0:
             return render_template("register.html", errors=errors)
         else:
+            newUser = Users(name=name, role=role, email=email, password=password)
+            db.session.add(newUser)
+            db.session.commit()
+            db.session.close()
             return render_template("register.html")
     else:
         return render_template("register.html")
