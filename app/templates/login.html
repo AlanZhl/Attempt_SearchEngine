@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login Form</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/bootstrap.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css')}}">
+</head>
+
+<body>
+    <div id="login-container" class="col-md-6 col-md-offset-3" style="background:rgba(255,255,255,0.6);margin-top:5%;padding:30px">
+        <!--error processing-->
+        {% for error in errors %}
+        <div class="alert alert-danger alert-dismissable" role="alert">
+            <div class="error">
+                <span class="sr-only">Error:</span>
+                {{ error }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!--Title-->
+        <div class="title">
+            Please login with...
+        </div>
+        <!--login form-->
+        <form method="post" id="loginForm" accept-charset="utf-8" autocomplete="off" role="form" class="form-horizontal">
+            <!--username/email-->
+            <div class="form-group">
+				<label for="name-input" class="col-sm-2 control-label" style="font-family:'Microsoft YaHei';color:rgba(0,0,0,0.6)">
+                    <img src="{{ url_for('static', filename='img/icons/user.svg')}}" width="22px" height="22px"/>
+                </label>
+                <!--select a login mode-->
+                <div class="col-sm-3">
+                    <select id="select-login-mode" class="form-control" onchange="setMode();">
+                        <option value="name" selected="selected">Username</option>
+                        <option value="email">Email</option>
+                    </select>
+                </div>
+                <input id="login-mode" type="hidden" name="mode">
+				<div class="col-sm-6">
+					<input type="text" class="form-control input-field" id="identity" name="identity" placeholder="Please enter your username/email">
+				</div>
+			</div>
+            <!--password-->
+            <div class="form-group">
+                <label for="password" class="col-sm-2 control-label">
+                    <img src="{{ url_for('static', filename='img/icons/password.svg')}}" width="22px" height="22px"/>
+                </label>
+                <div class="col-sm-9">
+                    <input type="password" class="form-control input-field" id="password" name="password" placeholder="Please enter the password (between 8 and 20 characters)">
+                </div>
+            </div>
+            <!--confirm button-->
+            <div class="form-group" style="text-align:center;margin-top:3%">
+	     		<button type="submit" id="submit" tabindex="5" style="font-size:16px;background-color:#079aff;padding:5px 150px;font-family:'Microsoft YaHei';">
+                    Login!
+                </button>
+            </div>
+        </form>
+    </div>
+    <script src="{{ request.script_root }}/static/js/vendor/jquery.min.js"></script>
+    <script src="{{ request.script_root }}/static/js/vendor/jquery.validate.min.js"></script>
+    <script src="{{ request.script_root }}/static/js/vendor/bootstrap.min.js"></script>
+</body>
+
+<script src="{{ request.script_root }}/static/js/vendor/marked.min.js"></script>
+<script src="{{ request.script_root }}/static/js/vendor/message_zh.js"></script>
+<script>
+    $(function() {
+        $("#loginForm").validate(
+            {
+                rules: {
+                    identity: {
+                        required: true
+                    },
+                    password: {
+                        required: true,
+                        rangelength:[8,20],
+                    }
+                },
+                messages: {
+                    identity: {
+                        required: "Username/Email must be specified!"
+                    },
+                    password: {
+                        required: "Password must be provided!",
+                        rangelength: "The password must be bwtween 8 to 20 characters.",
+                    }
+                },
+                errorPlacement: function(error, element) {      //错误信息的位置
+                    error.appendTo( element.parent() );
+                }
+            });
+    });
+
+
+    $("#login-mode").attr("value", document.getElementById('select-login-mode').options[document.getElementById('select-login-mode').selectedIndex].value);
+    function setMode() {
+        document.getElementById('login-mode').value = 
+        document.getElementById('select-login-mode').options[document.getElementById('select-login-mode').selectedIndex].value;
+    };
+</script>
+
+</html>
