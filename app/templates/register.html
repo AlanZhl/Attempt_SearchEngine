@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Register Form</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/bootstrap.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css')}}">
+</head>
+
+<body>
+    <div id="login-container" class="col-md-6 col-md-offset-3" style="background:rgba(255,255,255,0.6);margin-top:5%;padding:30px">
+        <!--error processing-->
+        {% for error in errors %}
+        <div class="alert alert-danger alert-dismissable" role="alert">
+            <div class="error">
+                <span class="sr-only">Error:</span>
+                {{ error }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!--Title-->
+        <div class="title">
+            Register Form
+        </div>
+        <!--register form-->
+        <form method="post" id="registerForm" accept-charset="utf-8" autocomplete="off" role="form" class="form-horizontal">
+            <!--user name-->
+            <div class="form-group">
+                <!-- <input type="hidden" name="nonce" value="{{nonce}}"> -->
+				<label for="name-input" class="col-sm-2 control-label" style="font-family:'Microsoft YaHei';color:rgba(0,0,0,0.6)">
+                    <img src="{{ url_for('static', filename='img/icons/user.svg')}}" width="22px" height="22px"/>
+                </label>
+				<div class="col-sm-9">
+					<input type="text" class="form-control input-field" id="name-input" name="name" placeholder="Please enter a new user name">
+				</div>
+			</div>
+            <!--user role-->
+            <div class="form-group">
+                <label for="name-input" class="col-sm-2 control-label" style="font-family:'Microsoft YaHei';color:rgba(0,0,0,0.6)">
+                    <img src="{{ url_for('static', filename='img/icons/user.svg')}}" width="22px" height="22px"/>
+                </label>
+                <div class="col-sm-9">
+                    <select id="select-role" class="form-control" onchange="setRole();">
+                        <option disabled="disabled" selected="selected">Please select a role...</option>
+                        <option value="jobseeker">Job Seeker</option>
+                        <option value="company">Company</option>
+                        <option value="admin">Administrater</option>
+                    </select>
+                </div>
+                <input id="role-input" type="hidden" name="role">
+            </div>
+            <!--email-->
+            <div class="form-group">
+                <label for="email-input" class="col-sm-2 control-label" >
+                    <img src="{{ url_for('static', filename='img/icons/email.svg')}}" width="22px" height="22px"/>
+                </label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control input-field" id="email-input" name="email" placeholder="Please enter a valid email address">
+                </div>
+            </div>
+            <!--password-->
+            <div class="form-group">
+                <label for="password" class="col-sm-2 control-label">
+                    <img src="{{ url_for('static', filename='img/icons/password.svg')}}" width="22px" height="22px"/>
+                </label>
+                <div class="col-sm-9">
+                    <input type="password" class="form-control input-field" id="password" name="password" placeholder="Please enter a valid password (between 8 and 20 characters)">
+                </div>
+            </div>
+            <!--confirm password-->
+            <div class="form-group">
+                <label for="confirm_password" class="col-sm-2 control-label">
+                    <img src="{{ url_for('static', filename='img/icons/password.svg')}}" width="22px" height="22px"/>
+                </label>
+                <div class="col-sm-9">
+                    <input type="password" class="form-control input-field" id="confirm_password" name="repassword" placeholder="Please confirm your password again">
+                </div>
+            </div>
+            <!--confirm button-->
+            <div class="form-group" style="text-align:center;margin-top:3%">
+	     		<button type="submit" id="submit" tabindex="5" style="font-size:16px;background-color:#079aff;padding:5px 150px;font-family:'Microsoft YaHei';">
+                    Confirm
+                </button>
+            </div>
+        </form>
+    </div>
+    <script src="{{ request.script_root }}/static/js/vendor/jquery.min.js"></script>
+    <script src="{{ request.script_root }}/static/js/vendor/jquery.validate.min.js"></script>
+    <script src="{{ request.script_root }}/static/js/vendor/bootstrap.min.js"></script>
+</body>
+
+<script src="{{ request.script_root }}/static/js/vendor/marked.min.js"></script>
+<script src="{{ request.script_root }}/static/js/vendor/message_zh.js"></script>
+<script>
+    $(function() {
+        $("#registerForm").validate(
+            {
+                rules: {
+                    name: "required",
+                    email: {
+                        required: true,
+                        email: true,
+                    },
+                    password: {
+                        required: true,
+                        rangelength:[8,20],
+                    },
+                    repassword: {
+                        required: true,
+                        equalTo: "#password",
+                    },
+                },
+                messages: {
+                    email:{
+                        required:"Email must be specified!",
+                        email:"Wrong format of an email address.",
+                        remote:"This email has been registered!"
+                    },
+                    password: {
+                        required: "Password must be specified!",
+                        rangelength: "The password must be bwtween 8 to 20 characters.",
+                    },
+                    repassword: {
+                        required: "Password must be confirmed!",
+                        equalTo: "Password confirmation fails.",
+                    }
+                },
+                errorPlacement: function(error, element) {      //错误信息的位置
+                    error.appendTo( element.parent() );
+                }
+            });
+    });
+
+
+    function setRole() {
+        document.getElementById('role-input').value = 
+        document.getElementById('select-role').options[document.getElementById('select-role').selectedIndex].value;
+    };
+</script>
+
+</html>
