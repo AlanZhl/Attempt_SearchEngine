@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Job Search Template</title>
+
+        <!-- Bootstrap -->
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/bootstrap.min.css')}}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css')}}">
+    </head>
+
+    <body>
+        <h1 style="font-family:'Microsoft YaHei';color:rgba(0,0,0,0.6)">
+            Hello, 
+            {% if name%}
+            {{ name }}!
+            {% else %}
+            tourist!
+            {% endif %}
+        </h1>
+
+        <script src="{{ request.script_root }}/static/js/vendor/jquery.min.js"></script>
+        <script src="{{ request.script_root }}/static/js/vendor/bootstrap.min.js"></script>
+    </body>
+</html>

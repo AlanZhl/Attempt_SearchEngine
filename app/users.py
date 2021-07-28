@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request
 from app.utils import checkByEmail, checkByName, checkExistence
 from app.models import db, Users
 
+
 users = Blueprint("users", __name__)
 
 
@@ -45,6 +46,7 @@ def login():
 
         if len(errors) > 0:
             return render_template("login.html", errors=errors)
-        return render_template("login.html")
+        user = Users.query.filter_by(name=identity).first() if mode == "name" else Users.query.filter_by(email=identity).first()
+        return render_template("job_search.html", name=user.name)
     else:
         return render_template("login.html")
