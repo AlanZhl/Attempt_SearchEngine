@@ -12,8 +12,8 @@ class Permissions:
 class Users(db.Model):
     __tablename__ = "users"
     user_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True)
-    email = db.Column(db.String(100), unique = True)
+    name = db.Column(db.String(100), unique=True, index=True)
+    email = db.Column(db.String(100), unique = True, index=True)
     role_id = db.Column(db.Integer)
     password = db.Column(db.String(128))
     # search_history: stored as cookies

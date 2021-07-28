@@ -4,8 +4,8 @@ from sqlalchemy.engine.url import make_url
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy.exc import OperationalError, ProgrammingError
 
-from app.jobs import jobs
-from app.users import users
+from app.view_jobs import jobs
+from app.view_users import users
 from app.models import db, Roles
 
 
