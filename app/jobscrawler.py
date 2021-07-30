@@ -1,12 +1,14 @@
+from app.models.jobs import JobPost
 from selenium import webdriver
 import urllib
 from bs4 import BeautifulSoup
 import re
 import time
+import random
 
 
 driver_path = r"C:\Users\72337\Desktop\project\repo\searchEngine\Attempt_SearchEngine\app\browser_drivers"
-# upon any update of "required field", add the respective processing method in "getElement" as well
+# upon any update of "required field", add the respective processing method in "getElement" and "create_jobposts" as well
 required_fields = ["title", "link", "company", "salary", "date", "snippet"]
 
 
@@ -16,12 +18,13 @@ def init_driver():
     return driver
 
 
-def init_jobposts(db, keyword, date=31):
+def init_jobposts(db, keyword, pageStart=1, date=1):
     driver = init_driver()
     # pages = count_pages(driver, keyword, date)
 
-    for page in range(1, 2): # 1001
+    for page in range(pageStart, pageStart + 10): # 10 items at a time (needs modification!)
         web_content = get_webcontent(driver, keyword, date, page)
+        time.sleep(random.randint(200, 300) / 1000)
         # print(web_content)
         if web_content == None:
             break
@@ -52,11 +55,8 @@ def extract_info(content):
     posts = []
     for card in job_cards:
         post = {}
-        # print(card)
         for field in required_fields:
             post[field] = getElement(card, field)
-        print(post)
-        print()
         posts.append(post)
     return posts
 
@@ -120,4 +120,16 @@ def getSnippet(card):
 
 # (testing version) create a new job post with the extracted information
 def create_jobposts(db, posts):
-    return
+    try:
+        for post in posts:
+            exist_record = JobPost.query.filter_by(title=post["title"], company=post["company"]).first()
+            if exist_record is None:
+                post_record = JobPost(title=post["title"], link=post["link"], company=post["company"], \
+                        salary=post["salary"], date=post["date"], description=post["snippet"])
+                db.session.add(post_record)
+        db.session.commit()
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+    
+    db.session.close()

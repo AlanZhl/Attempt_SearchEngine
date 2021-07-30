@@ -5,4 +5,4 @@ app = create_app()
 
 if __name__ == "__main__":
     init_jobposts(db, "software")
-    app.run(debug = True, port = 9001)
+    app.run(debug = False, port = 9001)
