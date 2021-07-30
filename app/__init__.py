@@ -4,6 +4,7 @@ from sqlalchemy.engine.url import make_url
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy.exc import OperationalError, ProgrammingError
 
+# from app.jobscrawler import init_jobposts
 from app.view_jobs import jobs
 from app.view_users import users
 from app.models import db, Roles
@@ -16,6 +17,7 @@ def create_app(config='app.config.Config'):
         init_db(app)
         app.db = db
 
+    # init_jobposts(db, "software")
     app.register_blueprint(jobs)
     app.register_blueprint(users)
     Session(app)
