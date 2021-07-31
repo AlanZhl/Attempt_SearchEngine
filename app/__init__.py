@@ -7,7 +7,7 @@ from sqlalchemy.exc import OperationalError, ProgrammingError
 # from app.jobscrawler import init_jobposts
 from app.view_jobs import jobs
 from app.view_users import users
-from app.models import db, Roles
+from app.models import db, es, Roles, create_es
 
 
 def create_app(config='app.config.Config'):
@@ -16,6 +16,7 @@ def create_app(config='app.config.Config'):
         app.config.from_object(config)
         init_db(app)
         app.db = db
+        create_es(es)
 
     # init_jobposts(db, "software")
     app.register_blueprint(jobs)

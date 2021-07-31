@@ -29,7 +29,12 @@ class JobPost(db.Model):
         if salary == "": return 0, 0
 
         words = salary.split(" ")
-        divisor = 1 if "month" in words else 12
+        divisor = 1 
+        if "year" in words:
+            divisor = 12
+        elif "week" in words:
+            divisor = 0.25
+        
         lowest = 0
         highest = 0
         for word in words:
@@ -41,7 +46,7 @@ class JobPost(db.Model):
                         highest = int("".join(word[1:].split(",")))
                 except Exception as e:
                     print(e)
-        return lowest // divisor, highest // divisor
+        return int(lowest // divisor), int(highest // divisor)
 
 
     @staticmethod
