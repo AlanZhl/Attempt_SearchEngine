@@ -6,7 +6,7 @@ class JobPost(db.Model):
     __tablename__ = "job_posts"
     post_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), index=True)
-    link = db.Column(db.String(200), nullable=True)
+    link = db.Column(db.Text, nullable=True)
     company = db.Column(db.String(100), index=True)
     salary_min = db.Column(db.Integer, index=True)
     salary_max = db.Column(db.Integer, index=True)

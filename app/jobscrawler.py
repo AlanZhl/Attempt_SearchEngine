@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 import re
 import time
 import random
+import elasticsearch.helpers
 
 
 driver_path = r"C:\Users\72337\Desktop\project\repo\searchEngine\Attempt_SearchEngine\app\browser_drivers"
@@ -25,14 +26,15 @@ def init_jobposts(db, es, keyword, pageStart=0, date=1):
 
     pageStart *= 10
 
-    for page in range(pageStart, pageStart + 101, 10): # 10 pages at a time (needs modification!)
+    for page in range(pageStart, pageStart + 1, 10): # 10 pages at a time (needs modification!)
         web_content = get_webcontent(driver, keyword, date, page)
         time.sleep(random.randint(200, 300) / 1000)
         # print(web_content)
         if web_content == None:
             break
         posts = extract_info(web_content)
-        create_jobposts(db, es, posts)
+        create_jobposts_MySQL(db, posts)
+        create_jobposts_ES(es, posts)
 
 
 # get all the contents in one page
@@ -117,7 +119,7 @@ def getSnippet(card):
 
 
 # (testing version) create a new job post with the extracted information
-def create_jobposts(db, es, posts):
+def create_jobposts_MySQL(db, posts):
     try:
         for post in posts:
             exist_record = JobPost.query.filter_by(title=post["title"], company=post["company"]).first()
@@ -125,9 +127,6 @@ def create_jobposts(db, es, posts):
                 post_record = JobPost(title=post["title"], link=post["link"], company=post["company"], \
                         salary=post["salary"], date=post["date"], description=post["snippet"])
                 db.session.add(post_record)
-                es_post = genESPost(post)
-                es_response = es.index(index="index_jobposts", body=es_post)
-                print("response: " + es_response)
         db.session.commit()
     except Exception as e:
         print(e)
@@ -136,8 +135,20 @@ def create_jobposts(db, es, posts):
     db.session.close()
 
 
+def create_jobposts_ES(es, posts):
+    try:
+        es_posts = []
+        for post in posts:
+            es_post = genESPost(post)
+            es_posts.append(es_post)
+        elasticsearch.helpers.bulk(es, es_posts)
+    except Exception as e:
+        print(e)
+
+
 def genESPost(post):
     esPost = {}
+    esPost["_index"] = "index_jobposts"
     esPost["title"] = post["title"]
     esPost["link"] = post["link"]
     esPost["company"] = post["company"]

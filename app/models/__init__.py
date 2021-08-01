@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from elasticsearch import Elasticsearch
 
 db = SQLAlchemy()
-es = Elasticsearch()
+es = Elasticsearch("localhost:9200")
 
 from .users import Permissions, Users, Roles
 from .jobs import JobPost
