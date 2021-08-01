@@ -18,7 +18,6 @@ def create_app(config='app.config.Config'):
         app.db = db
         create_es(es)
 
-    # init_jobposts(db, "software")
     app.register_blueprint(jobs)
     app.register_blueprint(users)
     Session(app)

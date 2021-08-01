@@ -1,9 +1,10 @@
 import threading
+from app import db, es
 from app.jobscrawler import update_jobposts
 
 
 class ScrawlerThread(threading.Thread):
-    def __init__(self, db, es, keyword, driver, pageStart=0, date=1):
+    def __init__(self, keyword, driver, pageStart=0, date=1):
         threading.Thread.__init__(self)
         self.db = db
         self.es = es

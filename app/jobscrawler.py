@@ -23,10 +23,10 @@ def init_driver(name):
     elif name == "edge":
         driver = webdriver.Edge(driver_path + "/edgedriver/msedgedriver.exe")
     elif name == "firefox":
-        driver = webdriver.Firefox(driver_path + "/geckodriver/")
+        driver = webdriver.Firefox(driver_path + "/geckodriver")
     elif name == "opera":    # there's still some problems with opera
         options = Options()
-        driver = webdriver.Opera(options=options, executable_path=driver_path + "\operadriver\operadriver.exe")
+        driver = webdriver.Opera(options=options, executable_path=driver_path + "/operadriver/operadriver.exe")
     else:
         driver = webdriver.Chrome(driver_path + "/chromedriver/chromedriver.exe")
 
@@ -38,9 +38,9 @@ def update_jobposts(db, es, keyword, driver_name, pageStart=0, date=1):
 
     pageStart *= 10
 
-    for page in range(pageStart, pageStart + 250, 10): # 20 pages at a time (needs modification!)
+    for page in range(pageStart, pageStart + 250, 10): # 25 pages at a time (needs modification!)
         web_content = get_webcontent(driver, keyword, date, page)
-        time.sleep(random.randint(500, 600) / 1000)
+        time.sleep(random.randint(400, 600) / 1000)
         # print(web_content)
         if web_content == None:
             break

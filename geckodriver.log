@@ -62,3 +62,15 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 1627819844379	Marionette	WARN	TLS certificate errors will be ignored for this session
 JavaScript error: , line 0: AbortError: The operation was aborted. 
 JavaScript error: , line 0: AbortError: The operation was aborted. 
+1627829454215	geckodriver	INFO	Listening on 127.0.0.1:50690
+1627829457834	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-foreground" "-no-remote" "-profile" "C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofilecfomlV"
+1627829458723	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofilecfomlV\\search.json.mozlz4", (void 0)))
+1627829461659	Marionette	INFO	Listening on port 50700
+1627829462051	Marionette	WARN	TLS certificate errors will be ignored for this session
+1627829494448	geckodriver	INFO	Listening on 127.0.0.1:50787
+1627829498804	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-foreground" "-no-remote" "-profile" "C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofileCUHRla"
+1627829499307	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofileCUHRla\\search.json.mozlz4", (void 0)))
+1627829503565	Marionette	INFO	Listening on port 63051
+1627829503659	Marionette	WARN	TLS certificate errors will be ignored for this session
