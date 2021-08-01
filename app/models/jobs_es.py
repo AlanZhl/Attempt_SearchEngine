@@ -27,4 +27,5 @@ def create_es(es):
             "number_of_shards": 5
         }
     }
-    es.indices.create(index="index_jobposts", body=mappings)
+    if not es.indices.exists(index="index_jobposts"):
+        es.indices.create(index="index_jobposts", body=mappings)

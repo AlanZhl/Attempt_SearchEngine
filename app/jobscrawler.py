@@ -1,6 +1,7 @@
 from operator import pos
 from app.models.jobs import JobPost
 from selenium import webdriver
+from selenium.webdriver.opera.options import Options
 import urllib
 from bs4 import BeautifulSoup
 import re
@@ -9,26 +10,37 @@ import random
 import elasticsearch.helpers
 
 
-driver_path = r"C:\Users\72337\Desktop\project\repo\searchEngine\Attempt_SearchEngine\app\browser_drivers"
+driver_path = r"C:/Users/72337/Desktop/project/repo/searchEngine/Attempt_SearchEngine/app/browser_drivers"
 # upon any update of "required field", add the respective processing method in \
 # "getElement", "create_jobposts_MySQL", "create_jobposts_ES" and "getESPost" as well
 required_fields = ["title", "link", "company", "salary", "date", "snippet"]
 
 
 # default browser: Chrome
-def init_driver():
-    driver = webdriver.Chrome(driver_path + "/Chromedriver/chromedriver.exe")
+def init_driver(name):
+    if name == "chrome":
+        driver = webdriver.Chrome(driver_path + "/chromedriver/chromedriver.exe")
+    elif name == "edge":
+        driver = webdriver.Edge(driver_path + "/edgedriver/msedgedriver.exe")
+    elif name == "firefox":
+        driver = webdriver.Firefox(driver_path + "/geckodriver/")
+    elif name == "opera":    # there's still some problems with opera
+        options = Options()
+        driver = webdriver.Opera(options=options, executable_path=driver_path + "\operadriver\operadriver.exe")
+    else:
+        driver = webdriver.Chrome(driver_path + "/chromedriver/chromedriver.exe")
+
     return driver
 
 
-def init_jobposts(db, es, keyword, pageStart=0, date=1):
-    driver = init_driver()
+def update_jobposts(db, es, keyword, driver_name, pageStart=0, date=1):
+    driver = init_driver(driver_name)
 
     pageStart *= 10
 
-    for page in range(pageStart, pageStart + 1, 10): # 10 pages at a time (needs modification!)
+    for page in range(pageStart, pageStart + 250, 10): # 20 pages at a time (needs modification!)
         web_content = get_webcontent(driver, keyword, date, page)
-        time.sleep(random.randint(200, 300) / 1000)
+        time.sleep(random.randint(500, 600) / 1000)
         # print(web_content)
         if web_content == None:
             break
@@ -129,7 +141,7 @@ def create_jobposts_MySQL(db, posts):
                 db.session.add(post_record)
         db.session.commit()
     except Exception as e:
-        print(e)
+        print("MySQL exception: " + e)
         db.session.rollback()
     
     db.session.close()
@@ -140,11 +152,12 @@ def create_jobposts_ES(es, posts):
         es_posts = []
         for post in posts:
             id = JobPost.query.filter_by(title=post["title"], company=post["company"]).first().post_id
-            es_post = genESPost(post, id)
-            es_posts.append(es_post)
+            if not checkESPost(es, id):
+                es_post = genESPost(post, id)
+                es_posts.append(es_post)
         elasticsearch.helpers.bulk(es, es_posts)
     except Exception as e:
-        print(e)
+        print("ES exception: " + e)
 
 
 def genESPost(post, id):
@@ -155,3 +168,15 @@ def genESPost(post, id):
     esPost["company"] = post["company"]
     esPost["description"] = post["snippet"]
     return esPost
+
+
+def checkESPost(es, id):
+    query = {
+        "query": {
+            "match_phrase": {
+                "post_id": id
+            }
+        }
+    }
+    return es.search(index="index_jobposts", body=query)["hits"]["total"]["value"] > 0
+

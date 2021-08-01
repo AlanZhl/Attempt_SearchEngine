@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask.templating import render_template
-from .jobscrawler import init_jobposts
+# from .jobscrawler import update_jobposts
 
 
 jobs = Blueprint("jobs", __name__)

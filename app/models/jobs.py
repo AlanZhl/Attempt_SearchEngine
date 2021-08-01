@@ -52,7 +52,7 @@ class JobPost(db.Model):
     @staticmethod
     def getDate(dateString):
         # if is posted today
-        if dateString == "今天" or dateString == "刚刚发布":
+        if dateString in ["今天", "刚刚发布", "Today", "Just posted"]:
             return date.today()
         else:
             # if is posted more than 1 month ago

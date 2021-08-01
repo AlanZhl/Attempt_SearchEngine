@@ -1,8 +1,15 @@
 from app import create_app, db, es
-from app.jobscrawler import init_jobposts
+# from app.jobscrawler import update_jobposts
+from threads import ScrawlerThread
+
 
 app = create_app()
 
 if __name__ == "__main__":
-    init_jobposts(db, es, "software")
+    mission1 = ScrawlerThread(db=db, es=es, keyword="software", driver="chrome")
+    mission2 = ScrawlerThread(db=db, es=es, keyword="IT", driver="firefox")
+
+    mission1.start()
+    mission2.start()
+    # update_jobposts(db, es, "software", "opera")
     app.run(debug = False, port = 9001)

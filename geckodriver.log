@@ -1,0 +1,64 @@
+1627806777868	geckodriver	INFO	Listening on 127.0.0.1:62621
+1627806781309	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-foreground" "-no-remote" "-profile" "C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofileTdU6X0"
+1627806781863	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofileTdU6X0\\search.json.mozlz4", (void 0)))
+1627806784914	Marionette	INFO	Listening on port 62629
+1627806784989	Marionette	WARN	TLS certificate errors will be ignored for this session
+SourceActor threw an exception: [Exception... "Component returned failure code: 0x80470002 (NS_BASE_STREAM_CLOSED) [nsIInputStream.available]"  nsresult: "0x80470002 (NS_BASE_STREAM_CLOSED)"  location: "JS frame :: resource://devtools/shared/DevToolsUtils.js :: onResponse :: line 567"  data: no]
+Stack: onResponse@resource://devtools/shared/DevToolsUtils.js:567:34
+onStopRequest@resource://gre/modules/NetUtil.jsm:128:18
+Line: 567, column: 0
+console.error: ({})
+JavaScript error: resource://devtools/shared/DevToolsUtils.js, line 567: NS_BASE_STREAM_CLOSED: Component returned failure code: 0x80470002 (NS_BASE_STREAM_CLOSED) [nsIInputStream.available]
+1627807103239	geckodriver	INFO	Listening on 127.0.0.1:62733
+1627807106685	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-foreground" "-no-remote" "-profile" "C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofile3s8qhu"
+1627807107200	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofile3s8qhu\\search.json.mozlz4", (void 0)))
+1627807110121	Marionette	INFO	Listening on port 62741
+1627807110355	Marionette	WARN	TLS certificate errors will be ignored for this session
+1627807605916	geckodriver	INFO	Listening on 127.0.0.1:55660
+1627807609357	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-foreground" "-no-remote" "-profile" "C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofilezTE0QV"
+1627807609712	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofilezTE0QV\\search.json.mozlz4", (void 0)))
+1627807612486	Marionette	INFO	Listening on port 55668
+1627807612530	Marionette	WARN	TLS certificate errors will be ignored for this session
+1627817346157	geckodriver	INFO	Listening on 127.0.0.1:65467
+1627817350492	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-foreground" "-no-remote" "-profile" "C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofilewoYQYm"
+1627817353481	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofilewoYQYm\\search.json.mozlz4", (void 0)))
+1627817359325	Marionette	INFO	Listening on port 51798
+1627817359459	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: https://d3fw5vlhllyvee.cloudfront.net/mosaic-common/dist/d1f9fe918745380ba170/scripts/loadProviders.js?cacheKey=1, line 1: TypeError: e is undefined
+JavaScript error: https://d3fw5vlhllyvee.cloudfront.net/mosaic-common/dist/d1f9fe918745380ba170/scripts/loadProviders.js?cacheKey=1, line 1: TypeError: e is undefined
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: https://d3fw5vlhllyvee.cloudfront.net/mosaic-common/dist/d1f9fe918745380ba170/scripts/loadProviders.js?cacheKey=1, line 1: TypeError: e is undefined
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: AbortError: The operation was aborted. 
+JavaScript error: , line 0: AbortError: The operation was aborted. 
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+console.error: services.settings: 
+  main/doh-providers Signature failed  InvalidSignatureError: Invalid content signature (main/doh-providers)
+console.error: services.settings: 
+  main/doh-providers local data was corrupted
+console.warn: services.settings: main/doh-providers Signature verified failed. Retry from scratch
+console.error: services.settings: 
+  main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
+console.error: services.settings: 
+  main/doh-config local data was corrupted
+console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
+1627818120921	geckodriver	INFO	Listening on 127.0.0.1:59378
+1627818124525	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-foreground" "-no-remote" "-profile" "C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofile7bPBpJ"
+1627818124981	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofile7bPBpJ\\search.json.mozlz4", (void 0)))
+1627818127765	Marionette	INFO	Listening on port 59386
+1627818128209	Marionette	WARN	TLS certificate errors will be ignored for this session
+1627818328270	Marionette	INFO	Stopped listening on port 59386
+1627819833286	geckodriver	INFO	Listening on 127.0.0.1:51456
+1627819837207	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-foreground" "-no-remote" "-profile" "C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofilelp0aY9"
+1627819838254	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofilelp0aY9\\search.json.mozlz4", (void 0)))
+1627819843959	Marionette	INFO	Listening on port 61445
+1627819844379	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: , line 0: AbortError: The operation was aborted. 
+JavaScript error: , line 0: AbortError: The operation was aborted. 
