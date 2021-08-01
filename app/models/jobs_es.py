@@ -2,29 +2,17 @@ def create_es(es):
     mappings = {
         "mappings": {
             "properties": {
+                "post_id": {
+                    "type": "long",
+                    "index": True
+                },
                 "title": {
                     "type": "text",
                     "index": True,
                     "analyzer": "default"
                 },
-                "link": {
-                    "type": "text",
-                    "index": True
-                },
                 "company": {
                     "type": "text",
-                    "index": True
-                },
-                "salary_min": {
-                    "type": "long",
-                    "index": True
-                },
-                "salary_max": {
-                    "type": "long",
-                    "index": True
-                },
-                "date": {
-                    "type": "date",
                     "index": True
                 },
                 "description": {

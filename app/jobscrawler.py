@@ -11,7 +11,7 @@ import elasticsearch.helpers
 
 driver_path = r"C:\Users\72337\Desktop\project\repo\searchEngine\Attempt_SearchEngine\app\browser_drivers"
 # upon any update of "required field", add the respective processing method in \
-# "getElement", "create_jobposts" and "getESPost" as well
+# "getElement", "create_jobposts_MySQL", "create_jobposts_ES" and "getESPost" as well
 required_fields = ["title", "link", "company", "salary", "date", "snippet"]
 
 
@@ -139,20 +139,19 @@ def create_jobposts_ES(es, posts):
     try:
         es_posts = []
         for post in posts:
-            es_post = genESPost(post)
+            id = JobPost.query.filter_by(title=post["title"], company=post["company"]).first().post_id
+            es_post = genESPost(post, id)
             es_posts.append(es_post)
         elasticsearch.helpers.bulk(es, es_posts)
     except Exception as e:
         print(e)
 
 
-def genESPost(post):
+def genESPost(post, id):
     esPost = {}
     esPost["_index"] = "index_jobposts"
+    esPost["post_id"] = id
     esPost["title"] = post["title"]
-    esPost["link"] = post["link"]
     esPost["company"] = post["company"]
-    esPost["salary_min"], esPost["salary_max"] = JobPost.getSalary(post["salary"])
-    esPost["date"] = JobPost.getDate(post["date"])
     esPost["description"] = post["snippet"]
     return esPost
