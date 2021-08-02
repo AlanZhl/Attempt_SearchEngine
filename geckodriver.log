@@ -74,3 +74,23 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofileCUHRla\\search.json.mozlz4", (void 0)))
 1627829503565	Marionette	INFO	Listening on port 63051
 1627829503659	Marionette	WARN	TLS certificate errors will be ignored for this session
+1627911283509	geckodriver	INFO	Listening on 127.0.0.1:58376
+1627911288405	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-foreground" "-no-remote" "-profile" "C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofileTO6Pse"
+1627911289664	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\72337\\AppData\\Local\\Temp\\rust_mozprofileTO6Pse\\search.json.mozlz4", (void 0)))
+1627911294801	Marionette	INFO	Listening on port 62550
+1627911294898	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: https://d3fw5vlhllyvee.cloudfront.net/mosaic-common/dist/d1f9fe918745380ba170/scripts/loadProviders.js?cacheKey=1, line 1: TypeError: e is undefined
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+1627911474361	Marionette	INFO	Stopped listening on port 62550

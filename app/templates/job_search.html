@@ -8,10 +8,11 @@
         <!-- Bootstrap -->
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/bootstrap.min.css')}}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css')}}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/bootstrap-table.min.css')}}">
     </head>
 
-    <body>
-        <h1 style="font-family:'Microsoft YaHei';color:rgba(0,0,0,0.6)">
+    <body style="font-family:'Microsoft YaHei';color:rgb(0, 0, 0)">
+        <h1 style="font-family:'Microsoft YaHei';color:rgba(4, 8, 245, 0.904)">
             Hello, 
             {% if name%}
             {{ name }}!
@@ -19,8 +20,64 @@
             tourist!
             {% endif %}
         </h1>
+        <table
+            id="table_sample"
+            data-toggle="table_sample"
+            data-pagination="true"
+            data-id-field="id"
+            data-page-list="[3, 5, 50, 100, all]">
+            <thead>
+                <tr>
+                    <th data-field="id">ID</th>
+                    <th data-field="name">Item Name</th>
+                    <th data-field="price">Item Price</th>
+                </tr>
+            </thead>
+        </table>
 
         <script src="{{ request.script_root }}/static/js/vendor/jquery.min.js"></script>
         <script src="{{ request.script_root }}/static/js/vendor/bootstrap.min.js"></script>
+        <script src="{{ request.script_root }}/static/js/vendor/bootstrap-table.min.js"></script>
+        <script src="{{ request.script_root }}/static/js/vendor/Index.js"></script>
     </body>
+
+    <script>
+        var $table = $('#table_sample')
+      
+        $(function() {
+            var data = [
+            {
+                'id': 0,
+                'name': 'Item 0',
+                'price': '$0'
+            },
+            {
+                'id': 1,
+                'name': 'Item 1',
+                'price': '$1'
+            },
+            {
+                'id': 2,
+                'name': 'Item 2',
+                'price': '$2'
+            },
+            {
+                'id': 3,
+                'name': 'Item 3',
+                'price': '$3'
+            },
+            {
+                'id': 4,
+                'name': 'Item 4',
+                'price': '$4'
+            },
+            {
+                'id': 5,
+                'name': 'Item 5',
+                'price': '$5'
+            }
+          ]
+          $table.bootstrapTable({data: data})
+        })
+    </script>
 </html>
