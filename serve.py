@@ -1,4 +1,4 @@
-from app import create_app, db, es
+from app import create_app
 # from app.jobscrawler import update_jobposts
 from threads import ScrawlerThread
 
