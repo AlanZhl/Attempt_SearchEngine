@@ -3,7 +3,7 @@ from flask import Blueprint, request, session
 from flask.templating import render_template
 
 from app.models import es
-from .utils import create_post
+from .utils import create_post, filter_results, sort_results
 
 
 # temporary sample data
@@ -53,6 +53,7 @@ def job_searching():
     if request.method == "POST":
         info = request.form
         keys = info.keys()
+        # case 1: receiving request from the search bar
         if "keyword" in keys:
             query["query"]["multi_match"]["query"] = info["keyword"]
             response = es.search(index="index_jobposts", body=query)["hits"]["hits"]
@@ -64,11 +65,20 @@ def job_searching():
             
             search_results = JobPost.query.filter(JobPost.post_id.in_(id_dict.keys()))
             displays = [None] * (idx + 1)
-            # reorder the search results as how they were returned from ES
             for record in search_results:
-                displays[id_dict[record.post_id]] = create_post(record)
-            # TODO: store the search results temporarily at the server
-            session["search_results"] = displays
-        return render_template("job_search.html", name=session.get("user_name"), posts=session.get("search_results"))
+                displays[id_dict[record.post_id]] = create_post(record)    # reorder the search results as how they were returned from ES
+            session["search_results"] = displays    # TODO: store the search results temporarily at the server
+            return render_template("job_search.html", name=session.get("user_name"), posts=displays)
+        # case 2: receiving response from the filters or sorters
+        else:
+            operated_results = session.get("search_results")
+            if operated_results:
+                for key, val in request.form.items():    # different filters and sorters can add up
+                    operation, kw = key.split("_")
+                    if operation == "filter":
+                        operated_results = filter_results(operated_results, kw, val)
+                    else:
+                        operated_results = sort_results(operated_results, kw, val)
+            return render_template("job_search.html", name=session.get("user_name"), posts=operated_results)
     else:
         return render_template("job_search.html", name=session.get("user_name"), posts=sample_data)

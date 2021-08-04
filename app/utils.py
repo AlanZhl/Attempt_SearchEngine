@@ -36,6 +36,7 @@ def checkByEmail(email, password):
     return errors
 
 
+# turn a MySQL record object into a displayable post
 def create_post(record):
     post = {}
     post["post_id"] = record.post_id
@@ -48,3 +49,15 @@ def create_post(record):
     post["date"] = record.date
 
     return post
+
+
+# filter from a list of displayable results (format shown in function "create_post")
+def filter_results(results, kw, val):
+    print(kw, val)
+    return results
+
+
+# sort a list of displayable results
+def sort_results(results, kw, val):
+    print(kw, val)
+    return results
