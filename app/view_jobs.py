@@ -1,7 +1,12 @@
-from flask import Blueprint, request
+from app.models.jobs import JobPost
+from flask import Blueprint, request, session
 from flask.templating import render_template
 
+from app.models import es
+from .utils import create_post
 
+
+# temporary sample data
 sample_data = [
     {
         "title": "Sofrware Engineer", 
@@ -23,22 +28,21 @@ sample_data = [
         "company": "A2000 Solutions Pte Ltd",
         "salary": "not given",
         "date": "2021-08-01"
-    },
-    {
-        "title": "Solution Sales Consultant", 
-        "link": "https://sg.indeed.com/rc/clk?jk=af7b169c38091b05&fccid=8975b9f5b98c2e9d&vjs=3",
-        "company": "A2000 Solutions Pte Ltd",
-        "salary": "not given",
-        "date": "2021-08-01"
-    },
-    {
-        "title": "ERP Implementation Specialists", 
-        "link": "https://sg.indeed.com/rc/clk?jk=11607ef578dcf2e2&fccid=8975b9f5b98c2e9d&vjs=3",
-        "company": "A2000 Solutions Pte Ltd",
-        "salary": "not given",
-        "date": "2021-08-01"
     }
 ]
+
+query = {
+    "_source": ['post_id'],
+    "size": 200,
+    "query": {
+        "multi_match": {
+            "query": "software",
+            "type": "best_fields",
+            "fields": ["title", "description"],
+            "tie_breaker": 0.3
+        }
+    }
+}    # return 200 results a time in real practice
 
 
 jobs = Blueprint("jobs", __name__)
@@ -46,9 +50,25 @@ jobs = Blueprint("jobs", __name__)
 
 @jobs.route("/", methods=["POST", "GET"])
 def job_searching():
-    # remember to add "https://" before the web links
     if request.method == "POST":
-        print(request.form)
-        return render_template("job_search_test.html", posts=sample_data)
+        info = request.form
+        keys = info.keys()
+        if "keyword" in keys:
+            query["query"]["multi_match"]["query"] = info["keyword"]
+            response = es.search(index="index_jobposts", body=query)["hits"]["hits"]
+            idx = 0
+            id_dict = {}    # order of the results sorted by the scores
+            for record in response:
+                id_dict[record["_source"]["post_id"]] = idx
+                idx += 1
+            
+            search_results = JobPost.query.filter(JobPost.post_id.in_(id_dict.keys()))
+            displays = [None] * (idx + 1)
+            # reorder the search results as how they were returned from ES
+            for record in search_results:
+                displays[id_dict[record.post_id]] = create_post(record)
+            # TODO: store the search results temporarily at the server
+            session["search_results"] = displays
+        return render_template("job_search.html", name=session.get("user_name"), posts=session.get("search_results"))
     else:
-        return render_template("job_search_test.html", posts=sample_data)
+        return render_template("job_search.html", name=session.get("user_name"), posts=sample_data)

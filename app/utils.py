@@ -1,4 +1,4 @@
-from app.models import Users
+from app.models import Users, JobPost
 from passlib.hash import bcrypt_sha256
 
 
@@ -34,3 +34,17 @@ def checkByEmail(email, password):
     elif not bcrypt_sha256.verify(str(password), user.password):
         errors.append("Password does not match the given user. Pls try again.")
     return errors
+
+
+def create_post(record):
+    post = {}
+    post["post_id"] = record.post_id
+    post["title"] = record.title
+    post["link"] = "https://" + record.link
+    post["company"] = record.company
+    post["salary_min"] = record.salary_min
+    post["salary_max"] = record.salary_max
+    post["salary"] = "not given" if record.salary_max == 0 else " - ".join(["$" + str(record.salary_min), "$" + str(record.salary_max)])
+    post["date"] = record.date
+
+    return post

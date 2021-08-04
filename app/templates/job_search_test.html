@@ -109,7 +109,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% set id = 0 %}
+                {% if posts %}
                 {% for post in posts %}
                 <tr id="tr-id-{{loop.index}}" class="tr-class-{{loop.index}}" data-title="bootstrap table" data-object='{"key": "value"}'>
                     <td id="td-id-{{loop.index}}" class="td-class" data-title="bootstrap table">
@@ -121,6 +121,7 @@
                     </td>
                 </tr>
                 {% endfor %}
+                {% endif %}
             </tbody>
         </table>
 

@@ -25,40 +25,71 @@
             <form method="post" id="searchForm" accept-charset="utf-8" autocomplete="off" role="form" class="form-horizontal">
                 <!--user name-->
                 <div class="form-group">
-                    <label for="name-input" class="col-sm-2 control-label">
+                    <label for="kw-input" class="col-sm-2 control-label">
                         Search Bar: 
                     </label>
                     <div class="col-sm-6">
-                        <input type="text" class="form-control input-field" id="name-input" name="name" placeholder="Enter the keyword for a post!">
+                        <input type="text" class="form-control input-field" id="kw-input" name="keyword" placeholder="Enter the keyword for a post!">
                     </div>
-                    <button type="submit" id="submit" class="col-sm-2" tabindex="0" style="font-size:16px;background-color:#519ff8;">
-                        Search
-                    </button>
+                    <div class="col-sm-2">
+                        <button type="submit" id="submit_0" class="btn" tabindex="0" style="font-size:16px;background-color:#519ff8;">
+                            Search
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
 
-        <div id="filters-container" class="col-md-8 col-md-offset-2">
+        <div id="filters-container" class="col-md-12">
             <form method="post" id="filterForm" accept-charset="utf-8" autocomplete="off" role="form" class="form-horizontal">
                 <!--user name-->
                 <div class="form-group">
-                    <label class="col-sm-1"> Filter </label>
-                    <select class="col-sm-2">Filter 1
-                        <option disabled="disabled" selected="selected">(by date)</option>
-                    </select>
-                    <select class="col-sm-2">Filter 2
-                        <option disabled="disabled" selected="selected">(by salary)</option>
-                    </select>
-                    <label class="col-sm-1"> Sort </label>
-                    <select class="col-sm-2">Sorting 1
-                        <option disabled="disabled" selected="selected">(by date)</option>
-                    </select>
-                    <select class="col-sm-2">Sorting 2
-                        <option disabled="disabled" selected="selected">(by salary)</option>
-                    </select>
-                    <button type="submit" id="submit" class="col-sm-2" tabindex="1" style="font-size:12px;background-color:#519ff8;">
-                        Reorganize
-                    </button>
+                    <label class="col-sm-1 control-label"> Filter </label>
+                    <div class="col-sm-2">
+                        <select class="form-control" name="filter_date">Filter 1
+                            <option disabled="disabled" selected="selected">(by date)</option>
+                            <option value=1> today </option>
+                            <option value=3> within 3 days </option>
+                            <option value=7> within 7 days </option>
+                            <option value=30> within 1 month </option>
+                            <option value=1000> all </option>
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <select class="form-control" name="filter_salary">Filter 2
+                            <option disabled="disabled" selected="selected">(by salary)</option>
+                            <option value="None"> not given </option>
+                            <option value="min_1000"> min salary > $1,000 </option>
+                            <option value="min_2000"> min salary > $2,000 </option>
+                            <option value="min_3000"> min salary > $3,000 </option>
+                            <option value="min_5000"> min salary > $5,000 </option>
+                            <option value="max_2000"> max salary > $2,000 </option>
+                            <option value="max_3000"> max salary > $3,000 </option>
+                            <option value="max_5000"> max salary > $5,000 </option>
+                            <option value="max_8000"> max salary > $8,000 </option>
+                            <option value="all"> all </option>
+                        </select>
+                    </div>
+                    <label class="col-sm-1 control-label"> Sort </label>
+                    <div class="col-sm-2">
+                        <select class="form-control" name="sort_date">Sorting 1
+                            <option disabled="disabled" selected="selected">(by date)</option>
+                            <option value="asc"> in ascending order </option>
+                            <option value="desc"> in desceding order </option>
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <select class="form-control" name="sort_salary">Sorting 2
+                            <option disabled="disabled" selected="selected">(by salary)</option>
+                            <option value="asc"> in ascending order </option>
+                            <option value="desc"> in desceding order </option>
+                        </select>
+                    </div>
+                    <div class="col-sm-1">
+                        <button type="submit" id="submit_1" class="btn" tabindex="1" style="font-size:12px;background-color:#519ff8;">
+                            Reorganize
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -79,7 +110,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% set id = 0 %}
+                {% if posts %}
                 {% for post in posts %}
                 <tr id="tr-id-{{loop.index}}" class="tr-class-{{loop.index}}" data-title="bootstrap table" data-object='{"key": "value"}'>
                     <td id="td-id-{{loop.index}}" class="td-class" data-title="bootstrap table">
@@ -91,6 +122,7 @@
                     </td>
                 </tr>
                 {% endfor %}
+                {% endif %}
             </tbody>
         </table>
 
