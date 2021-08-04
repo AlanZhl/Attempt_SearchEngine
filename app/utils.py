@@ -1,5 +1,7 @@
-from app.models import Users, JobPost
 from passlib.hash import bcrypt_sha256
+from datetime import date, timedelta
+
+from app.models import Users, JobPost
 
 
 # used for name and email checks in a registration process
@@ -53,8 +55,38 @@ def create_post(record):
 
 # filter from a list of displayable results (format shown in function "create_post")
 def filter_results(results, kw, val):
-    print(kw, val)
-    return results
+    filtered_results = []
+    if kw == "date":
+        today = date.today()
+        for post in results:
+            if post:
+                delta = today - post["date"]
+                if delta.days <= val:
+                    print(delta.days, val)
+                    filtered_results.append(post)
+    elif kw == "salary":
+        if val == "None":
+            for post in results:
+                if post["salary"] == "not given": 
+                    filtered_results.append(post)
+        elif val == "all":
+            filtered_results = results
+        else:
+            category, thres_str = val.split("_")
+            thres = int(thres_str)
+            if category == "min":
+                for post in results:
+                    if post["salary_min"] >= thres:
+                        filtered_results.append(post)
+            else:
+                for post in results:
+                    if post["salary_max"] >= thres:
+                        filtered_results.append(post)
+    else:
+        print("Filter error: unkown keyword transferred: " + kw)
+        return results
+
+    return filtered_results
 
 
 # sort a list of displayable results

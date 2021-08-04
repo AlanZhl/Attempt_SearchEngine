@@ -11,4 +11,4 @@ if __name__ == "__main__":
 
     # mission1.start()
     # mission2.start()
-    app.run(debug = True, port = 9001)
+    app.run(debug = False, port = 9001)
