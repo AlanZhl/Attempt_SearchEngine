@@ -57,13 +57,16 @@ def create_post(record):
 def filter_results(results, kw, val):
     filtered_results = []
     if kw == "date":
-        today = date.today()
-        for post in results:
-            if post:
-                delta = today - post["date"]
-                if delta.days <= val:
-                    print(delta.days, val)
-                    filtered_results.append(post)
+        if val == 1000:
+            filtered_results = results
+        else:
+            today = date.today()
+            for post in results:
+                if post:
+                    delta = today - post["date"]
+                    if delta.days <= val:
+                        print(delta.days, val)
+                        filtered_results.append(post)
     elif kw == "salary":
         if val == "None":
             for post in results:

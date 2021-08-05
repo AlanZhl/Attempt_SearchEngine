@@ -9,6 +9,8 @@ import time
 import random
 import elasticsearch.helpers
 
+from app.models import MyError
+
 
 driver_path = r"C:/Users/72337/Desktop/project/repo/searchEngine/Attempt_SearchEngine/app/browser_drivers"
 # upon any update of "required field", add the respective processing method in \
@@ -67,9 +69,11 @@ def extract_info(content):
     posts = []
     for card in job_cards:
         post = {}
+        succeed = True
         for field in required_fields:
             post[field] = getElement(card, field)
-        posts.append(post)
+            if post[field] == None: succeed = False
+        if succeed: posts.append(post)
     return posts
 
 
@@ -91,24 +95,40 @@ def getElement(card, field):
 
 # toolbox for getTitle()
 def getTitle(card):
-    fieldBlock = card.find("td", class_="resultContent")
-    field = fieldBlock.find("h2", class_=re.compile("^jobTitle")).find_all("span")[-1]
-    fieldText = field.text.strip()
+    try:
+        fieldBlock = card.find("td", class_="resultContent")
+        field = fieldBlock.find("h2", class_=re.compile("^jobTitle")).find_all("span")[-1]
+        fieldText = field.text.strip()
+    except Exception as e:
+        MyError.display("Scrawler Error", MyError.WEB_SOURCE_NULL, "failed to collect title from Indeed.")
+        print(e)
+        fieldText = None
     return fieldText
 
 def getLink(card):
-    link = card["href"]
-    link = "sg.indeed.com" + link
+    try:
+        link = card["href"]
+        link = "sg.indeed.com" + link
+    except Exception as e:
+        MyError.display("Scrawler Error", MyError.WEB_SOURCE_NULL, "failed to collect weblink from Indeed.")
+        print(e)
+        link = None
     return link
 
 def getCompany(card):
-    fieldBlock = card.find("td", class_="resultContent")
-    field = fieldBlock.find("span", class_="companyName")
-    fieldText = field.text.strip()
+    try:
+        fieldBlock = card.find("td", class_="resultContent")
+        field = fieldBlock.find("span", class_="companyName")
+        fieldText = field.text.strip()
+    except Exception as e:
+        MyError.display("Scrawler Error", MyError.WEB_SOURCE_NULL, "failed to collect company from Indeed.")
+        print(e)
+        fieldText = None
     return fieldText
 
 def getSalary(card):
     fieldContainer = card.find("div", class_=re.compile("salary-snippet-container"))
+    # can tolerate without specified salaries!
     if fieldContainer is None:
         return ""
     fieldBlock = fieldContainer.find("span", class_="salary-snippet")
@@ -116,17 +136,27 @@ def getSalary(card):
     return fieldText
 
 def getDate(card):
-    fieldContainer = card.find("table", class_="jobCardShelfContainer")
-    fieldBlock = fieldContainer.find("span", class_="date")
-    fieldText = fieldBlock.text.strip()
+    try:
+        fieldContainer = card.find("table", class_="jobCardShelfContainer")
+        fieldBlock = fieldContainer.find("span", class_="date")
+        fieldText = fieldBlock.text.strip()
+    except Exception as e:
+        MyError.display("Scrawler Error", MyError.WEB_SOURCE_NULL, "failed to collect date from Indeed.")
+        print(e)
+        fieldText = None
     return fieldText
 
 def getSnippet(card):
-    fieldContainer = card.find("table", class_="jobCardShelfContainer")
-    fieldBlock = fieldContainer.find("div", class_="job-snippet")
-    fieldText = ""
-    for text in fieldBlock.find_all("li"):
-        fieldText += text.text.strip()
+    try:
+        fieldContainer = card.find("table", class_="jobCardShelfContainer")
+        fieldBlock = fieldContainer.find("div", class_="job-snippet")
+        fieldText = ""
+        for text in fieldBlock.find_all("li"):
+            fieldText += text.text.strip()
+    except Exception as e:
+        MyError.display("Scrawler Error", MyError.WEB_SOURCE_NULL, "failed to collect description from Indeed.")
+        print(e)
+        fieldText = None
     return fieldText
 
 
@@ -141,7 +171,8 @@ def create_jobposts_MySQL(db, posts):
                 db.session.add(post_record)
         db.session.commit()
     except Exception as e:
-        print("MySQL exception: " + e)
+        MyError.display("Scrawler Error" + MyError.MYSQL_CREATE_FAIL + "fail to create a page of posts in MySQL.")
+        print(e)
         db.session.rollback()
     
     db.session.close()
@@ -157,7 +188,8 @@ def create_jobposts_ES(es, posts):
                 es_posts.append(es_post)
         elasticsearch.helpers.bulk(es, es_posts)
     except Exception as e:
-        print("ES exception: " + e)
+        MyError.display("Scrawler Error" + MyError.ES_CREATE_FAIL + "fail to create a page of posts in ES.")
+        print(e)
 
 
 def genESPost(post, id):

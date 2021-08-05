@@ -8,3 +8,4 @@ es = Elasticsearch("localhost:9200")
 from .users import Permissions, Users, Roles
 from .jobs import JobPost
 from .jobs_es import create_es
+from .errors import MyError
