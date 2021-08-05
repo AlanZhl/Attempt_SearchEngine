@@ -12,3 +12,4 @@ if __name__ == "__main__":
     # mission1.start()
     # mission2.start()
     app.run(debug = False, port = 9001)
+    # Before adopting redis, please clear folder "flask_session" everytime after stopping the server

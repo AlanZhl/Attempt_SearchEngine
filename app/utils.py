@@ -1,7 +1,7 @@
 from passlib.hash import bcrypt_sha256
 from datetime import date, timedelta
 
-from app.models import Users, JobPost
+from app.models import Users, JobPost, MyError
 
 
 # used for name and email checks in a registration process
@@ -47,7 +47,8 @@ def create_post(record):
     post["company"] = record.company
     post["salary_min"] = record.salary_min
     post["salary_max"] = record.salary_max
-    post["salary"] = "not given" if record.salary_max == 0 else " - ".join(["$" + str(record.salary_min), "$" + str(record.salary_max)])
+    post["salary"] = "not given" if record.salary_max == 0 \
+                    else " - ".join(["$" + str(record.salary_min), "$" + str(record.salary_max)])
     post["date"] = record.date
 
     return post
@@ -57,16 +58,15 @@ def create_post(record):
 def filter_results(results, kw, val):
     filtered_results = []
     if kw == "date":
-        if val == 1000:
+        val_num = int(val)
+        if val_num == 1000:
             filtered_results = results
         else:
             today = date.today()
             for post in results:
-                if post:
-                    delta = today - post["date"]
-                    if delta.days <= val:
-                        print(delta.days, val)
-                        filtered_results.append(post)
+                delta = today - post["date"]
+                if delta.days <= val_num:
+                    filtered_results.append(post)
     elif kw == "salary":
         if val == "None":
             for post in results:
@@ -86,7 +86,7 @@ def filter_results(results, kw, val):
                     if post["salary_max"] >= thres:
                         filtered_results.append(post)
     else:
-        print("Filter error: unkown keyword transferred: " + kw)
+        MyError.display("JobFilter Error" + MyError.UI_REQUEST_UNKNOWN + "unknown keyword sent by UI.")
         return results
 
     return filtered_results

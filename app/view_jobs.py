@@ -64,7 +64,7 @@ def job_searching():
                 idx += 1
             
             search_results = JobPost.query.filter(JobPost.post_id.in_(id_dict.keys()))
-            displays = [None] * (idx + 1)
+            displays = [None] * idx
             for record in search_results:
                 displays[id_dict[record.post_id]] = create_post(record)    # reorder the search results as how they were returned from ES
             session["search_results"] = displays    # TODO: store the search results temporarily at the server
@@ -78,7 +78,7 @@ def job_searching():
                     if operation == "sort":
                         operated_results = sort_results(operated_results, kw, val)
                     else:
-                        operated_results = filter_results(operated_results, kw, int(val))
+                        operated_results = filter_results(operated_results, kw, val)
             return render_template("job_search.html", name=session.get("user_name"), posts=operated_results)
     else:
         return render_template("job_search.html", name=session.get("user_name"), posts=sample_data)

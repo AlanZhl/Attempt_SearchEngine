@@ -73,7 +73,9 @@ def extract_info(content):
         for field in required_fields:
             post[field] = getElement(card, field)
             if post[field] == None: succeed = False
-        if succeed: posts.append(post)
+        if succeed and \
+            JobPost.query.filter_by(title=post["title"], company=post["company"]).first() is None:
+            posts.append(post)
     return posts
 
 
@@ -164,11 +166,9 @@ def getSnippet(card):
 def create_jobposts_MySQL(db, posts):
     try:
         for post in posts:
-            exist_record = JobPost.query.filter_by(title=post["title"], company=post["company"]).first()
-            if exist_record is None:
-                post_record = JobPost(title=post["title"], link=post["link"], company=post["company"], \
-                        salary=post["salary"], date=post["date"], description=post["snippet"])
-                db.session.add(post_record)
+            post_record = JobPost(title=post["title"], link=post["link"], company=post["company"], \
+                salary=post["salary"], date=post["date"], description=post["snippet"])
+            db.session.add(post_record)
         db.session.commit()
     except Exception as e:
         MyError.display("Scrawler Error" + MyError.MYSQL_CREATE_FAIL + "fail to create a page of posts in MySQL.")
