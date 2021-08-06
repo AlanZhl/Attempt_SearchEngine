@@ -75,10 +75,10 @@ def job_searching():
             if operated_results:
                 for key, val in request.form.items():    # different filters and sorters can add up
                     operation, kw = key.split("_")
-                    if operation == "sort":
-                        operated_results = sort_results(operated_results, kw, val)
-                    else:
+                    if operation == "filter":
                         operated_results = filter_results(operated_results, kw, val)
+                    else:
+                        operated_results = sort_results(operated_results, kw, val)
             return render_template("job_search.html", name=session.get("user_name"), posts=operated_results)
     else:
         return render_template("job_search.html", name=session.get("user_name"), posts=sample_data)

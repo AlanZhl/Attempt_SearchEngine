@@ -59,14 +59,14 @@
                         <select class="form-control" name="filter_salary">Filter 2
                             <option disabled="disabled" selected="selected">(by salary)</option>
                             <option value="None"> not given </option>
-                            <option value="min_1000"> min salary > $1,000 </option>
-                            <option value="min_2000"> min salary > $2,000 </option>
-                            <option value="min_3000"> min salary > $3,000 </option>
-                            <option value="min_5000"> min salary > $5,000 </option>
-                            <option value="max_2000"> max salary > $2,000 </option>
-                            <option value="max_3000"> max salary > $3,000 </option>
-                            <option value="max_5000"> max salary > $5,000 </option>
-                            <option value="max_8000"> max salary > $8,000 </option>
+                            <option value="min_1000"> min salary >= $1,000 </option>
+                            <option value="min_2000"> min salary >= $2,000 </option>
+                            <option value="min_3000"> min salary >= $3,000 </option>
+                            <option value="min_5000"> min salary >= $5,000 </option>
+                            <option value="max_2000"> max salary >= $2,000 </option>
+                            <option value="max_3000"> max salary >= $3,000 </option>
+                            <option value="max_5000"> max salary >= $5,000 </option>
+                            <option value="max_8000"> max salary >= $8,000 </option>
                             <option value="all"> all </option>
                         </select>
                     </div>
@@ -81,8 +81,10 @@
                     <div class="col-sm-2">
                         <select class="form-control" name="sort_salary">Sorting 2
                             <option disabled="disabled" selected="selected">(by salary)</option>
-                            <option value="asc"> in ascending order </option>
-                            <option value="desc"> in desceding order </option>
+                            <option value="asc_min"> min salary in ascending order </option>
+                            <option value="desc_min"> min salary in desceding order </option>
+                            <option value="asc_max"> max salary in ascending order </option>
+                            <option value="desc_max"> max salary in desceding order </option>
                         </select>
                     </div>
                     <div class="col-sm-1">

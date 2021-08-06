@@ -45,10 +45,12 @@ def create_post(record):
     post["title"] = record.title
     post["link"] = "https://" + record.link
     post["company"] = record.company
-    post["salary_min"] = record.salary_min
-    post["salary_max"] = record.salary_max
-    post["salary"] = "not given" if record.salary_max == 0 \
-                    else " - ".join(["$" + str(record.salary_min), "$" + str(record.salary_max)])
+    post["salary_min"] = record.salary_min if record.salary_min > 0 else record.salary_max
+    post["salary_max"] = record.salary_max if record.salary_max > 0 else record.salary_min
+    if post["salary_min"] == 0 and post["salary_max"] == 0:
+        post["salary"] = "not given"
+    else:
+        post["salary"] = " - ".join(["$"+str(post["salary_min"]), "$"+str(post["salary_max"])])
     post["date"] = record.date
 
     return post
@@ -94,5 +96,63 @@ def filter_results(results, kw, val):
 
 # sort a list of displayable results
 def sort_results(results, kw, val):
-    print(kw, val)
+    if kw == "date":
+        if val == "desc": 
+            sort_helper(results, lambda x : x["date"])
+        else: 
+            sort_helper(results, lambda x : x["date"], asc=True)
+    elif kw == "salary":
+        order, bound = val.split("_")
+        if order == "desc":
+            if bound == "min":
+                sort_helper(results, lambda x : x["salary_min"])
+            else: 
+                sort_helper(results, lambda x : x["salary_max"])
+        else:
+            if bound == "min":
+                sort_helper(results, lambda x : x["salary_min"], asc=True)
+            else: 
+                sort_helper(results, lambda x : x["salary_max"], asc=True)
+    else:
+        MyError.display("JobFilter Error" + MyError.UI_REQUEST_UNKNOWN + "unknown keyword sent by UI.")
+    
     return results
+
+
+# help sort the results according to keyword "key". Mergesort is applied to enable multi-keyword-sorting.
+def sort_helper(posts, key, asc=False):
+    length = len(posts)
+    
+    mergesort(posts, key, 0, length - 1)
+    if asc:
+        for i in range(length >> 1):
+            posts[i], posts[length - 1 - i] = posts[length - 1 - i], posts[i]
+
+
+# Notice: this is a destructive sorting!
+def mergesort(lst, key, start, end):
+    if start >= end: return
+
+    mid = (start + end) >> 1
+    mergesort(lst, key, start, mid)
+    mergesort(lst, key, mid + 1, end)
+    merge(lst, key, start, mid + 1, end)
+
+
+def merge(lst, key, start, mid, end):
+    aux = [lst[i] for i in range(start, mid)]    # save half of the space consumed
+    i, j, k = 0, mid, start
+
+    while i < mid - start and j <= end:
+        if key(aux[i]) >= key(lst[j]):
+            lst[k] = aux[i]
+            i += 1
+        else:
+            lst[k] = lst[j]
+            j += 1
+        k += 1
+    
+    while i < mid - start:
+        lst[k] = aux[i]
+        i += 1
+        k += 1
