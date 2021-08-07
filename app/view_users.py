@@ -54,3 +54,8 @@ def login():
     else:
         if session.get("user_id"): session.clear()
         return render_template("login.html")
+
+
+@users.route("/user_manage", methods=["POST", "GET"])
+def user_manage():
+    return render_template("user_manage.html")
