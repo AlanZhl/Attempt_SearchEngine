@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, session, redirect
-from app.utils import checkByEmail, checkByName, checkExistence
-from app.models import db, Users
+from app.utils import checkByEmail, checkByName, checkExistence, create_userinfo
+from app.models import db, Users, Permissions
+from app.common import permission_check
 
 
 users = Blueprint("users", __name__)
@@ -57,5 +58,12 @@ def login():
 
 
 @users.route("/user_manage", methods=["POST", "GET"])
+@permission_check(Permissions.USER_MANAGE)
 def user_manage():
-    return render_template("user_manage.html")
+    raw_users = Users.query.all()
+    users = []
+    for user in raw_users:
+        users.append(create_userinfo(user))
+    if request.method == "POST":
+        print(request.form)
+    return render_template("user_manage.html", users=users)

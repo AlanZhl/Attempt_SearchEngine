@@ -56,6 +56,23 @@ def create_post(record):
     return post
 
 
+# turn a MySQL user object into a displayable form
+def create_userinfo(raw_user):
+    user = {}
+    
+    user["user_id"] = raw_user.user_id
+    user["name"] = raw_user.name
+    user["email"] = raw_user.email
+    if raw_user.role_id == 2:
+        user["role"] = "Company"
+    elif raw_user.role_id == 3:
+        user["role"] = "Administrator"
+    else:
+        user["role"] = "Job Seeker"
+    
+    return user
+
+
 # filter from a list of displayable results (format shown in function "create_post")
 def filter_results(results, kw, val):
     filtered_results = []

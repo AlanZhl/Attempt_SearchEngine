@@ -25,7 +25,7 @@
                         Search by: 
                     </label>
                     <div class="col-md-2">
-                        <select class="form-control" name="filter_kw">
+                        <select class="form-control" name="search_kw">
                             <option disabled="disabled" selected="selected">(choose a keyword)</option>
                             <option value="userid"> User ID </option>
                             <option value="username"> User Name </option>
@@ -102,9 +102,9 @@
                 {% for user in users %}
                 <tr id="tr-id-{{loop.index}}" class="tr-class-{{loop.index}}" data-title="bootstrap table" data-object='{"key": "value"}'>
                     <td data-value="content_id"> {{ user["user_id"] }} </td>
-                    <td data-value="content_name">{{ post["name"] }}</td>
-                    <td data-text="content_email">{{ post["email"] }}</td>
-                    <td data-i18n="content_role"> {{ post["role"] }}</td>
+                    <td data-value="content_name">{{ user["name"] }}</td>
+                    <td data-value="content_email">{{ user["email"] }}</td>
+                    <td data-value="content_role"> {{ user["role"] }}</td>
                 </tr>
                 {% endfor %}
                 {% endif %}
