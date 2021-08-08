@@ -60,10 +60,39 @@ def login():
 @users.route("/user_manage", methods=["POST", "GET"])
 @permission_check(Permissions.USER_MANAGE)
 def user_manage():
+    # for the sake of safety and privacy, users' info are not stored in sessions
     raw_users = Users.query.all()
     users = []
     for user in raw_users:
         users.append(create_userinfo(user))
     if request.method == "POST":
-        print(request.form)
-    return render_template("user_manage.html", users=users)
+        try:
+            request_content = request.form
+            print(request_content)
+            operated_users = []
+            # case 1: search (exact match)
+            if "keyword" in request_content.keys():
+                field, val = request_content.get("search_kw"), request_content["keyword"]
+                if field:
+                    if field == "userid":
+                        val = int(val)
+                    for user in users:
+                        if user.get(field) == val:
+                            operated_users.append(user)
+                return render_template("user_manage.html", users=operated_users, name=session.get("user_name"))
+            # case 2: delete a user
+            elif "delete" in request_content.keys():
+                idx = int(request_content["delete"]) - 1
+                user = users[idx]
+                record = Users.query.filter_by(user_id=user["user_id"]).first()
+                users.pop(idx)
+                db.session.delete(record)
+                db.session.commit()
+                db.session.close()
+                return render_template("user_manage.html", users=users, name=session.get("user_name"))
+            # TODO: case 3: filter or sort the current user list
+            else:
+                return render_template("user_manage.html", users=users, name=session.get("user_name"))
+        except Exception as e:
+            print(e)
+    return render_template("user_manage.html", users=users, name=session.get("user_name"))
