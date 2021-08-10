@@ -76,36 +76,50 @@ def create_userinfo(raw_user):
 # filter from a list of displayable results (format shown in function "create_post")
 def filter_results(results, kw, val):
     filtered_results = []
-    if kw == "date":
-        val_num = int(val)
-        if val_num == 1000:
+    try:
+        if val == "all":
             filtered_results = results
-        else:
-            today = date.today()
-            for post in results:
-                delta = today - post["date"]
-                if delta.days <= val_num:
-                    filtered_results.append(post)
-    elif kw == "salary":
-        if val == "None":
-            for post in results:
-                if post["salary"] == "not given": 
-                    filtered_results.append(post)
-        elif val == "all":
-            filtered_results = results
-        else:
-            category, thres_str = val.split("_")
-            thres = int(thres_str)
-            if category == "min":
+        elif kw == "date":
+            val_num = int(val)
+            if val_num == 1000:
+                filtered_results = results
+            else:
+                today = date.today()
                 for post in results:
-                    if post["salary_min"] >= thres:
+                    delta = today - post["date"]
+                    if delta.days <= val_num:
+                        filtered_results.append(post)
+        elif kw == "salary":
+            if val == "None":
+                for post in results:
+                    if post["salary"] == "not given": 
                         filtered_results.append(post)
             else:
-                for post in results:
-                    if post["salary_max"] >= thres:
-                        filtered_results.append(post)
-    else:
+                category, thres_str = val.split("_")
+                thres = int(thres_str)
+                if category == "min":
+                    for post in results:
+                        if post["salary_min"] >= thres:
+                            filtered_results.append(post)
+                else:
+                    for post in results:
+                        if post["salary_max"] >= thres:
+                            filtered_results.append(post)
+        # other cases: filter by exact values (categorical data)
+        else:
+            if kw == "role":
+                if val == "admin":
+                    val = "Administrator"
+                elif val == "company":
+                    val = "Company"
+                else:
+                    val = "Job Seeker"
+            for user in results:
+                if user[kw] == val:
+                    filtered_results.append(user)
+    except Exception as e:
         MyError.display("JobFilter Error" + MyError.UI_REQUEST_UNKNOWN + "unknown keyword sent by UI.")
+        print(e)
         return results
 
     return filtered_results
@@ -113,25 +127,30 @@ def filter_results(results, kw, val):
 
 # sort a list of displayable results
 def sort_results(results, kw, val):
-    if kw == "date":
-        if val == "desc": 
-            sort_helper(results, lambda x : x["date"])
-        else: 
-            sort_helper(results, lambda x : x["date"], asc=True)
-    elif kw == "salary":
-        order, bound = val.split("_")
-        if order == "desc":
-            if bound == "min":
+    try:
+        if kw == "salary":
+            if val == "desc_min":
                 sort_helper(results, lambda x : x["salary_min"])
-            else: 
+            elif val == "desc_max":
                 sort_helper(results, lambda x : x["salary_max"])
-        else:
-            if bound == "min":
+            elif val == "asc_min":
                 sort_helper(results, lambda x : x["salary_min"], asc=True)
             else: 
                 sort_helper(results, lambda x : x["salary_max"], asc=True)
-    else:
+        else:
+            field = kw
+            if field == "userid":
+                field = "user_id"
+            elif field == "postid":
+                field = "post_id"
+            
+            if val == "asc":
+                sort_helper(results, lambda x : x[field], asc=True)
+            else:
+                sort_helper(results, lambda x : x[field])
+    except Exception as e:
         MyError.display("JobFilter Error" + MyError.UI_REQUEST_UNKNOWN + "unknown keyword sent by UI.")
+        print(e)
     
     return results
 

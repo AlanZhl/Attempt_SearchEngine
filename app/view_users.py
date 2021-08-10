@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, session, redirect
-from app.utils import checkByEmail, checkByName, checkExistence, create_userinfo
+from app.utils import checkByEmail, checkByName, checkExistence, create_userinfo, filter_results, sort_results
 from app.models import db, Users, Permissions
 from app.common import permission_check
 
@@ -68,7 +68,6 @@ def user_manage():
     if request.method == "POST":
         try:
             request_content = request.form
-            print(request_content)
             operated_users = []
             # case 1: search (exact match)
             if "keyword" in request_content.keys():
@@ -90,9 +89,16 @@ def user_manage():
                 db.session.commit()
                 db.session.close()
                 return render_template("user_manage.html", users=users, name=session.get("user_name"))
-            # TODO: case 3: filter or sort the current user list
+            # TODO (not tested, need to modify "filter_results"): case 3: filter or sort the current user list
             else:
-                return render_template("user_manage.html", users=users, name=session.get("user_name"))
+                operated_users = []
+                for key, val in request.form.items():
+                    operation, kw = key.split("_")
+                    if operation == "filter":
+                        operated_users = filter_results(users, kw, val)
+                    else:
+                        operated_users = sort_results(users, kw, val)
+                return render_template("user_manage.html", users=operated_users, name=session.get("user_name"))
         except Exception as e:
             print(e)
     return render_template("user_manage.html", users=users, name=session.get("user_name"))
