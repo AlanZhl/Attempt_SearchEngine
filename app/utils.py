@@ -192,3 +192,37 @@ def merge(lst, key, start, mid, end):
         lst[k] = aux[i]
         i += 1
         k += 1
+
+
+    # # not selected due to its unstability
+    # def dual_pivot_quicksort(lst, start, end):
+    #     if start >= end: return
+
+    # if lst[start] < lst[end]:
+    #     lst[start], lst[end] = lst[end], lst[start]
+    # pivot_left = lst[start]
+    # pivot_right = lst[end]
+
+    # bound_left = start
+    # bound_right = end
+    # idx = start + 1
+    # while idx < bound_right:
+    #     if lst[idx] >= pivot_left:
+    #         bound_left += 1
+    #         lst[bound_left], lst[idx] = lst[idx], lst[bound_left]
+    #         idx += 1
+    #     elif lst[idx] < pivot_left and lst[idx] > pivot_right:
+    #         idx += 1
+    #     else:
+    #         while bound_right > idx and lst[bound_right] <= pivot_right:
+    #             bound_right -= 1
+    #         lst[bound_right], lst[idx] = lst[idx], lst[bound_right]
+    #         # Do not increment idx here:
+    #         # the element at --bound_right might be larger than pivot_left!
+    #         # Therefore, it is wiser to move bound_right other than idx.
+    # lst[start], lst[bound_left] = lst[bound_left], lst[start]
+    # lst[end], lst[bound_right] = lst[bound_right], lst[end]
+
+    # dual_pivot_quicksort(lst, start, bound_left - 1)
+    # dual_pivot_quicksort(lst, bound_left + 1, bound_right - 1)
+    # dual_pivot_quicksort(lst, bound_right + 1, end)

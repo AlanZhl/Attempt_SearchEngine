@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Job Manage Template</title>
+
+        <!-- Bootstrap -->
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/bootstrap.min.css')}}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css')}}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/bootstrap-table.min.css')}}">
+    </head>
+
+    <body style="font-family:'Microsoft YaHei';color:rgb(0, 0, 0)">
+        <h2 style="font-family:'Microsoft YaHei';color:rgba(38, 17, 226, 0.904)">
+            Thanks for your cooperation, 
+            {{ name }}!
+        </h2>
+
+        <div id="filters-container" class="col-md-10 col-md-offset-2">
+            <form method="post" id="filterForm" accept-charset="utf-8" autocomplete="off" role="form" class="form-horizontal">
+                <!--user name-->
+                <div class="form-group">
+                    <label class="col-md-1 control-label"> Filter </label>
+                    <div class="col-md-2">
+                        <select class="form-control" name="filter_date">
+                            <option disabled="disabled" selected="selected">(by date)</option>
+                            <option value=1> within 24 hours </option>
+                            <option value=3> within 3 days </option>
+                            <option value=7> within 7 days </option>
+                            <option value=30> within 1 month </option>
+                            <option value=1000> all </option>
+                        </select>
+                    </div>
+                    <label class="col-md-1 control-label"> Sort </label>
+                    <div class="col-md-2">
+                        <select class="form-control" name="sort_date">
+                            <option disabled="disabled" selected="selected">(by date)</option>
+                            <option value="asc"> in ascending order </option>
+                            <option value="desc"> in desceding order </option>
+                        </select>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="submit" id="submit_1" class="btn" tabindex="1" style="font-size:12px;background-color:#519ff8;">
+                            Reorganize
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <table
+            id="table"
+            data-toggle="table"
+            data-show-columns="true"
+            data-pagination="true"
+            data-page-list="[5, 10, 50]"
+            style="background:rgba(255,255,255,0.6);padding:10px">
+            <thead style="background:rgb(165, 179, 224);padding:10px">
+                <tr class="tr-class-1">
+                    <th data-field="title">Job Title</th>
+                    <th data-field="salary">Salary</th>
+                    <th data-field="date">Post Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if users %}
+                {% for user in users %}
+                <tr id="tr-id-{{loop.index}}" class="tr-class-{{loop.index}}" data-title="bootstrap table" data-object='{"key": "value"}'>
+                    <td id="td-id-{{loop.index}}" class="td-class" data-title="bootstrap table">
+                        <a href={{ post['link'] }} target="_blank">{{ post["title"] }}</a>
+                    </td>
+                    <td data-value="content_salary">{{ post["salary"] }}</td>
+                    <td data-value="content_date"> {{ post["date"] }}</td>
+                    <td data-value="content_operations">
+                        <form method="POST">
+                            <button type="submit" class="btn" 
+                            name="delete" value="{{loop.index}}" style="background-color:#fa4c35;"> 
+                                Delete 
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+
+        <script src="{{ url_for('static', filename='js/vendor/jquery.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/vendor/bootstrap.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/vendor/bootstrap-table.min.js')}}"></script>
+    </body>
+</html>

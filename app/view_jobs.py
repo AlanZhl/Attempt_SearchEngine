@@ -82,3 +82,8 @@ def job_searching():
             return render_template("job_search.html", name=session.get("user_name"), posts=operated_results)
     else:
         return render_template("job_search.html", name=session.get("user_name"), posts=sample_data)
+
+
+@jobs.route("/job_manage", methods=["POST", "GET"])
+def job_managing():
+    return render_template("job_manage.html")

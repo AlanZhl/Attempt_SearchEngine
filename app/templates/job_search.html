@@ -118,10 +118,9 @@
                     <td id="td-id-{{loop.index}}" class="td-class" data-title="bootstrap table">
                         <a href={{ post['link'] }} target="_blank">{{ post["title"] }}</a>
                     </td>
-                    <td data-value="526">{{ post["company"] }}</td>
-                    <td data-text="122">{{ post["salary"] }}</td>
-                    <td data-i18n="Description"> {{ post["date"] }}
-                    </td>
+                    <td data-value="content_company">{{ post["company"] }}</td>
+                    <td data-value="content_salary">{{ post["salary"] }}</td>
+                    <td data-value="content_date"> {{ post["date"] }}</td>
                 </tr>
                 {% endfor %}
                 {% endif %}
