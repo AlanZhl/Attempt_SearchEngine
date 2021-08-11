@@ -1,8 +1,8 @@
-from app.models.jobs import JobPost
 from flask import Blueprint, request, session
 from flask.templating import render_template
 
-from app.models import es
+from app.models import es, JobPost, Permissions
+from app.common import permission_check
 from .utils import create_post, filter_results, sort_results
 
 
@@ -85,5 +85,14 @@ def job_searching():
 
 
 @jobs.route("/job_manage", methods=["POST", "GET"])
+@permission_check(Permissions.JOB_MANAGE)
 def job_managing():
-    return render_template("job_manage.html")
+    print(request.form)
+    return render_template("job_manage.html", name=session.get("user_name"))
+
+
+@jobs.route("/job_create", methods=["POST", "GET"])
+# @permission_check(Permissions.JOB_CREATE)
+def create_jobpost():
+    print(request.form)
+    return render_template("job_create.html")

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Job Create Form</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/bootstrap.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css')}}">
+</head>
+
+<body>
+    <div id="jobpost-container" class="col-md-8 col-md-offset-2" style="background:rgba(255,255,255,0.6);margin-top:5%;padding:30px">
+        <!--error processing-->
+        {% for error in errors %}
+        <div class="alert alert-danger alert-dismissable" role="alert">
+            <div class="error">
+                <span class="sr-only">Error:</span>
+                {{ error }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!--Title-->
+        <div class="title">
+            New Job Post
+        </div>
+        <!--jobpost creation form-->
+        <form method="post" id="jobpostForm" accept-charset="utf-8" autocomplete="off" role="form" class="form-horizontal">
+            <!--job title-->
+            <div class="form-group">
+				<label for="title-input" class="col-sm-2 control-label" style="font-family:'Microsoft YaHei';color:rgba(0,0,0,0.6)">
+                    Job Title
+                </label>
+				<div class="col-sm-9">
+					<input type="text" class="form-control input-field" id="title" name="title" placeholder="title of the job post">
+				</div>
+			</div>
+            <!--job salary-->
+            <div class="form-group">
+                <label for="salarymin-input" class="col-sm-2 control-label" style="font-family:'Microsoft YaHei';color:rgba(0,0,0,0.6)">
+                    Salary range from
+                </label>
+                <div class="col-sm-3">
+					<input type="text" class="form-control input-field" id="salary_min" name="salary_min" placeholder="min salary per month">
+				</div>
+                <label for="salarymax-input" class="col-sm-1 control-label" style="font-family:'Microsoft YaHei';color:rgba(0,0,0,0.6)">
+                    to
+                </label>
+                <div class="col-sm-3">
+					<input type="text" class="form-control input-field" id="salary_max" name="salary_max" placeholder="max salary per month">
+				</div>
+            </div>
+            <!--job description-->
+            <div class="form-group">
+                <label for="desc-input" class="col-sm-2 control-label" style="font-family:'Microsoft YaHei';color:rgba(0,0,0,0.6)">
+                    Description
+                </label>
+                <div class="col-sm-9">
+                    <textarea id="desc-input" class="form-control" rows=5 name="description" 
+                    placeholder="please briefly describe the job" style="font-family:'Microsoft YaHei';color:rgba(0,0,0,0.6)"></textarea>
+                </div>
+            </div>
+            <!--create button-->
+            <div class="form-group" style="text-align:center;margin-top:3%">
+	     		<button type="submit" id="submit" tabindex="5" style="font-size:16px;background-color:#35cf17;padding:5px 150px;font-family:'Microsoft YaHei';">
+                    Create
+                </button>
+            </div>
+        </form>
+    </div>
+    <script src="{{ url_for('static', filename='js/vendor/jquery.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/jquery.validate.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-table.min.js')}}"></script>
+</body>
+
+<script>
+    $(function() {
+        $("#jobpostForm").validate(
+            {
+                rules: {
+                    title: {
+                        required: true
+                    },
+                    salary_min: {
+                        required: true,
+                        number: true
+                    },
+                    salary_max: {
+                        required: true,
+                        number: true
+                    },
+                    description: {
+                        required: true
+                    },
+                },
+                messages: {
+                    title: {
+                        required: "Job title is required."
+                    },
+                    salary_min:{
+                        required:"Min salary must be specified!",
+                        number:"please fill the forms with numbers!"
+                    },
+                    salary_max:{
+                        required:"Max salary must be specified!",
+                        number:"please fill the forms with numbers!"
+                    },
+                    description:{
+                        required: "A brief decription is required."
+                    }
+                },
+                errorPlacement: function(error, element) {      //错误信息的位置
+                    error.appendTo( element.parent() );
+                }
+            }
+        );
+    });
+</script>
+
+</html>

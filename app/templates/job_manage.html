@@ -22,7 +22,7 @@
                 <!--user name-->
                 <div class="form-group">
                     <label class="col-md-1 control-label"> Filter </label>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <select class="form-control" name="filter_date">
                             <option disabled="disabled" selected="selected">(by date)</option>
                             <option value=1> within 24 hours </option>
@@ -33,7 +33,7 @@
                         </select>
                     </div>
                     <label class="col-md-1 control-label"> Sort </label>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <select class="form-control" name="sort_date">
                             <option disabled="disabled" selected="selected">(by date)</option>
                             <option value="asc"> in ascending order </option>
@@ -49,10 +49,18 @@
             </form>
         </div>
 
+        <div class="col-md-10 col-md-offset-5">
+            <form method="POST">
+                <button type="submit" class="btn" 
+                name="crate" value="new" style="font-size:16px;background-color:#1edb18;"> 
+                    Create a new job post! 
+                </button>
+            </form>
+        </div>
+
         <table
             id="table"
             data-toggle="table"
-            data-show-columns="true"
             data-pagination="true"
             data-page-list="[5, 10, 50]"
             style="background:rgba(255,255,255,0.6);padding:10px">

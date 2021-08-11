@@ -88,11 +88,11 @@
         </form>
     </div>
     <script src="{{ url_for('static', filename='js/vendor/jquery.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/jquery.validate.min.js')}}"></script>
     <script src="{{ url_for('static', filename='js/vendor/bootstrap.min.js')}}"></script>
     <script src="{{ url_for('static', filename='js/vendor/bootstrap-table.min.js')}}"></script>
 </body>
 
-<script src="{{ request.script_root }}/static/js/vendor/marked.min.js"></script>
 <script>
     $(function() {
         $("#registerForm").validate(
