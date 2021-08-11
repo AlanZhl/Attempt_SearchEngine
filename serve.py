@@ -23,4 +23,4 @@ if __name__ == "__main__":
     os.mkdir(Config.FILE_PATH)
 
     # run the server instance (please close the debug mode when run with a scrawling process)
-    app.run(debug = False, port = 9001)
+    app.run(debug = True, port = 9001)

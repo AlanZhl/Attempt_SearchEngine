@@ -64,8 +64,8 @@
                 </tr>
             </thead>
             <tbody>
-                {% if users %}
-                {% for user in users %}
+                {% if posts %}
+                {% for post in posts %}
                 <tr id="tr-id-{{loop.index}}" class="tr-class-{{loop.index}}" data-title="bootstrap table" data-object='{"key": "value"}'>
                     <td id="td-id-{{loop.index}}" class="td-class" data-title="bootstrap table">
                         <a href={{ post['link'] }} target="_blank">{{ post["title"] }}</a>
