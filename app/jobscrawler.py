@@ -10,6 +10,7 @@ import random
 import elasticsearch.helpers
 
 from app.models import MyError
+from .utils import genESPost, checkESPost
 
 
 driver_path = r"C:/Users/72337/Desktop/project/repo/searchEngine/Attempt_SearchEngine/app/browser_drivers"
@@ -192,23 +193,23 @@ def create_jobposts_ES(es, posts):
         print(e)
 
 
-def genESPost(post, id):
-    esPost = {}
-    esPost["_index"] = "index_jobposts"
-    esPost["post_id"] = id
-    esPost["title"] = post["title"]
-    esPost["company"] = post["company"]
-    esPost["description"] = post["snippet"]
-    return esPost
+# def genESPost(post, id):
+#     esPost = {}
+#     esPost["_index"] = "index_jobposts"
+#     esPost["post_id"] = id
+#     esPost["title"] = post["title"]
+#     esPost["company"] = post["company"]
+#     esPost["description"] = post["snippet"]
+#     return esPost
 
 
-def checkESPost(es, id):
-    query = {
-        "query": {
-            "match_phrase": {
-                "post_id": id
-            }
-        }
-    }
-    return es.search(index="index_jobposts", body=query)["hits"]["total"]["value"] > 0
+# def checkESPost(es, id):
+#     query = {
+#         "query": {
+#             "match_phrase": {
+#                 "post_id": id
+#             }
+#         }
+#     }
+#     return es.search(index="index_jobposts", body=query)["hits"]["total"]["value"] > 0
 

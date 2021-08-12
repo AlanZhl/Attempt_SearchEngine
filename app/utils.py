@@ -43,7 +43,7 @@ def create_post(record):
     post = {}
     post["post_id"] = record.post_id
     post["title"] = record.title
-    post["link"] = "https://" + record.link
+    post["link"] = "https://" + record.link if record.link else None
     post["company"] = record.company
     post["salary_min"] = record.salary_min if record.salary_min > 0 else record.salary_max
     post["salary_max"] = record.salary_max if record.salary_max > 0 else record.salary_min
@@ -54,6 +54,29 @@ def create_post(record):
     post["date"] = record.date
 
     return post
+
+
+# generate a job post in ES-required format
+def genESPost(post, id):
+    esPost = {}
+    esPost["_index"] = "index_jobposts"
+    esPost["post_id"] = id
+    esPost["title"] = post["title"]
+    esPost["company"] = post["company"]
+    esPost["description"] = post["snippet"]
+    return esPost
+
+
+# check if the job post with post_id "id" already exists in ES
+def checkESPost(es, id):
+    query = {
+        "query": {
+            "match_phrase": {
+                "post_id": id
+            }
+        }
+    }
+    return es.search(index="index_jobposts", body=query)["hits"]["total"]["value"] > 0
 
 
 # turn a MySQL user object into a displayable form

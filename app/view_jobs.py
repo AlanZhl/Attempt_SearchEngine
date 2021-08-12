@@ -1,9 +1,11 @@
+from datetime import datetime
 from flask import Blueprint, request, session
 from flask.templating import render_template
+from werkzeug.utils import redirect
 
-from app.models import es, JobPost, Permissions
+from app.models import db, es, JobPost, Permissions, Users, MyError
 from app.common import permission_check
-from .utils import create_post, filter_results, sort_results
+from .utils import create_post, filter_results, sort_results, genESPost
 
 
 # temporary sample data
@@ -91,8 +93,39 @@ def job_managing():
     return render_template("job_manage.html", name=session.get("user_name"))
 
 
+# TODO: test the integrated process
 @jobs.route("/job_create", methods=["POST", "GET"])
-# @permission_check(Permissions.JOB_CREATE)
+@permission_check(Permissions.JOB_CREATE)
 def create_jobpost():
     print(request.form)
+    raw_content = request.form
+    if request.method == "POST":
+        try:
+            # post creation for MySQL
+            post = {}
+            post["title"] = raw_content["title"]
+            post["company"] = session.get("user_name")
+            post["salary"] = " - ".join(["$" + raw_content["salary_min"], "$" + raw_content["salary_max"]])
+            post["date"] = datetime.today()
+            post["description"] = raw_content["description"]
+            db.session.add(JobPost(title=post["title"], link=None, company=post["company"], \
+                salary=post["salary"], date=post["date"], description=post["description"]))
+            db.session.commit()
+            db.session.close()
+
+            # post creation for ES
+            id = JobPost.query.filter_by(title=post["title"], company=post["company"]).first().post_id
+            es_body = {
+                "post_id": id,
+                "title": post["title"],
+                "company": post["company"],
+                "description": post["description"]
+            }
+            es.create(index="index_jobposts", body=es_body)
+            return redirect("/job_manage")
+        except Exception as e:
+            MyError.display("Post Creation Error" + MyError.MYSQL_CREATE_FAIL + " or " + MyError.ES_CREATE_FAIL \
+                + "fail to create a new job post")
+            print(e)
+            return render_template("job_create.html", errors=["Sorry, job creation failed due to server error."])
     return render_template("job_create.html")
