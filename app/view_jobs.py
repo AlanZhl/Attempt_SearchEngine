@@ -1,11 +1,13 @@
 from datetime import datetime
+import elasticsearch
+from elasticsearch import helpers
 from flask import Blueprint, request, session
 from flask.templating import render_template
 from werkzeug.utils import redirect
 
 from app.models import db, es, JobPost, Permissions, Users, MyError
 from app.common import permission_check
-from .utils import create_post, filter_results, sort_results, genESPost
+from .utils import create_post, filter_results, sort_results, genESPost, create_postinfo
 
 
 # temporary sample data
@@ -89,8 +91,12 @@ def job_searching():
 @jobs.route("/job_manage", methods=["POST", "GET"])
 @permission_check(Permissions.JOB_MANAGE)
 def job_managing():
-    print(request.form)
-    return render_template("job_manage.html", name=session.get("user_name"))
+    print(request.method)
+    raw_posts = JobPost.query.filter_by(company=session.get("user_name")).all()
+    posts = []
+    for post in raw_posts:
+        posts.append(create_postinfo(post))
+    return render_template("job_manage.html", name=session.get("user_name"), posts=posts)
 
 
 # TODO: test the integrated process
@@ -105,27 +111,21 @@ def create_jobpost():
             post = {}
             post["title"] = raw_content["title"]
             post["company"] = session.get("user_name")
-            post["salary"] = " - ".join(["$" + raw_content["salary_min"], "$" + raw_content["salary_max"]])
-            post["date"] = datetime.today()
-            post["description"] = raw_content["description"]
+            post["salary"] = " - ".join(["$" + str(raw_content["salary_min"]), "$" + str(raw_content["salary_max"])])
+            post["date"] = "Today"
+            post["snippet"] = raw_content["description"]
             db.session.add(JobPost(title=post["title"], link=None, company=post["company"], \
-                salary=post["salary"], date=post["date"], description=post["description"]))
+                salary=post["salary"], date=post["date"], description=post["snippet"]))
             db.session.commit()
             db.session.close()
 
             # post creation for ES
             id = JobPost.query.filter_by(title=post["title"], company=post["company"]).first().post_id
-            es_body = {
-                "post_id": id,
-                "title": post["title"],
-                "company": post["company"],
-                "description": post["description"]
-            }
-            es.create(index="index_jobposts", body=es_body)
+            es_post = [genESPost(post, id)]
+            helpers.bulk(es, es_post)
             return redirect("/job_manage")
         except Exception as e:
-            MyError.display("Post Creation Error" + MyError.MYSQL_CREATE_FAIL + " or " + MyError.ES_CREATE_FAIL \
-                + "fail to create a new job post")
+            MyError.display("Post Creation Error", MyError.MYSQL_CREATE_FAIL, "fail to create a new job post")
             print(e)
             return render_template("job_create.html", errors=["Sorry, job creation failed due to server error."])
     return render_template("job_create.html")

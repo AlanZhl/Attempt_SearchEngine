@@ -37,15 +37,16 @@ class JobPost(db.Model):
         
         lowest = 0
         highest = 0
-        for word in words:
-            if word.find("$") != -1:
-                try:
+        try:
+            for word in words:
+                if word.find("$") != -1:
                     if lowest == 0:
                         lowest = int("".join(word[1:].split(",")))
                     else:
                         highest = int("".join(word[1:].split(",")))
-                except Exception as e:
-                    print(e)
+        except Exception as e:
+            print("Parsing error: posiion: Jobpost.getSalary")
+            print(e)
         return int(lowest // divisor), int(highest // divisor)
 
 
@@ -62,6 +63,7 @@ class JobPost(db.Model):
             num = ""
             for ch in dateString:
                 ascii = ord(ch)
+                print("I am here inside date")
                 if ascii >= 48 and ascii <= 57:
                     num += ch
                 else:

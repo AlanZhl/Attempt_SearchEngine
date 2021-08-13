@@ -96,6 +96,18 @@ def create_userinfo(raw_user):
     return user
 
 
+# (similarly,) turn a MySQL jobpost object into a displayable form
+def create_postinfo(raw_post):
+    post = {}
+    
+    post["title"] = raw_post.title
+    post["link"] = raw_post.link
+    post["salary"] = " - ".join(["$" + str(raw_post.salary_min), "$" + str(raw_post.salary_max)])
+    post["date"] = raw_post.date
+    
+    return post
+
+
 # filter from a list of displayable results (format shown in function "create_post")
 def filter_results(results, kw, val):
     filtered_results = []
