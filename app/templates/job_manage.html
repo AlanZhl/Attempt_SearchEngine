@@ -52,7 +52,7 @@
         <div class="col-md-10 col-md-offset-5">
             <form method="POST">
                 <button type="submit" class="btn" 
-                name="crate" value="new" style="font-size:16px;background-color:#1edb18;"> 
+                name="create" value="new" style="font-size:16px;background-color:#1edb18;"> 
                     Create a new job post! 
                 </button>
             </form>
@@ -63,21 +63,25 @@
             data-toggle="table"
             data-pagination="true"
             data-page-list="[5, 10, 50]"
+            data-detail-view="true"
+            data-detail-formatter="detailFormatter"
             style="background:rgba(255,255,255,0.6);padding:10px">
             <thead style="background:rgb(165, 179, 224);padding:10px">
                 <tr class="tr-class-1">
-                    <th data-field="head_title">Job Title</th>
-                    <th data-field="head_salary">Salary</th>
-                    <th data-field="head_date">Post Date</th>
-                    <th data-field="head_operations">Operations</th>
+                    <th data-field="title">Job Title</th>
+                    <th data-field="salary">Salary</th>
+                    <th data-field="date">Post Date</th>
+                    <th data-field="operations">Operations</th>
                 </tr>
             </thead>
             <tbody>
                 {% if posts %}
                 {% for post in posts %}
-                <tr id="tr-id-{{loop.index}}" class="tr-class-{{loop.index}}" data-title="bootstrap table" data-object='{"key": "value"}'>
+                <tr id="tr-id-{{loop.index}}" class="tr-class-{{loop.index}}"
+                data-title="bootstrap table" data-object='{"key": "value"}'>
                     <td id="td-id-{{loop.index}}" class="td-class" data-title="bootstrap table">
-                        <a href={{ post['link'] }} target="_blank">{{ post["title"] }}</a>
+                        <a href={{ post["link"] }} target="_blank">{{ post["title"] }}</a>
+                        <input id = "desc-{{loop.index}}" value="{{post['description']}}" hidden>
                     </td>
                     <td data-value="content_salary">{{ post["salary"] }}</td>
                     <td data-value="content_date"> {{ post["date"] }}</td>
@@ -99,4 +103,14 @@
         <script src="{{ url_for('static', filename='js/vendor/bootstrap.min.js')}}"></script>
         <script src="{{ url_for('static', filename='js/vendor/bootstrap-table.min.js')}}"></script>
     </body>
+
+    <script>
+        function detailFormatter(index, row) {
+            var html = []
+            html.push('<p><b>' + "title" + ':</b> ' + row["title"] + '</p>')
+            html.push('<p><b>' + "description" + ':</b> ' + $("#desc-" + (index+1)).val() + '</p>')
+            html.push('<p><b>' + "date" + ':</b> ' + row["date"] + '</p>')
+            return html.join('');
+        }
+    </script>
 </html>

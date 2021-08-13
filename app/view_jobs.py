@@ -7,7 +7,7 @@ from werkzeug.utils import redirect
 
 from app.models import db, es, JobPost, Permissions, Users, MyError
 from app.common import permission_check
-from .utils import create_post, filter_results, sort_results, genESPost, create_postinfo
+from .utils import create_post, filter_results, sort_results, genESPost
 
 
 # temporary sample data
@@ -91,11 +91,39 @@ def job_searching():
 @jobs.route("/job_manage", methods=["POST", "GET"])
 @permission_check(Permissions.JOB_MANAGE)
 def job_managing():
-    print(request.method)
+    # pre-process to generate all the jobs posted by the company
     raw_posts = JobPost.query.filter_by(company=session.get("user_name")).all()
     posts = []
     for post in raw_posts:
-        posts.append(create_postinfo(post))
+        posts.append(create_post(post))
+
+    if request.method == "POST":
+        try:
+            print(request.form)    # just for test
+            request_contents = request.form
+            # case 1: jump to the creation page
+            if "create" in request_contents.keys():
+                return redirect("/job_create")
+            # case 2: delete a job post (from both MySQL and ES)
+            elif "delete" in request_contents.keys():
+                idx = int(request_contents["delete"]) - 1
+                post = posts.pop(idx)
+                # step 1) delete from mySQL
+                post_mysql = JobPost.query.filter_by(post_id=post["post_id"]).first()
+                db.session.delete(post_mysql)
+                db.session.commit()
+                db.session.close()
+                # step 2) delete from ES
+                delete_query = {
+                    "query": {
+                        "match_phrase": {
+                            "post_id": post["post_id"]
+                        }
+                    }
+                }
+                es.delete_by_query(index="index_jobposts", body=delete_query)
+        except Exception as e:
+            print(e)
     return render_template("job_manage.html", name=session.get("user_name"), posts=posts)
 
 
@@ -103,11 +131,10 @@ def job_managing():
 @jobs.route("/job_create", methods=["POST", "GET"])
 @permission_check(Permissions.JOB_CREATE)
 def create_jobpost():
-    print(request.form)
-    raw_content = request.form
     if request.method == "POST":
         try:
             # post creation for MySQL
+            raw_content = request.form
             post = {}
             post["title"] = raw_content["title"]
             post["company"] = session.get("user_name")
