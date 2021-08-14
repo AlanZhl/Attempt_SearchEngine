@@ -99,7 +99,6 @@ def job_managing():
 
     if request.method == "POST":
         try:
-            print(request.form)    # just for test
             request_contents = request.form
             # case 1: jump to the creation page
             if "create" in request_contents.keys():
@@ -122,6 +121,16 @@ def job_managing():
                     }
                 }
                 es.delete_by_query(index="index_jobposts", body=delete_query)
+            # case 3: filter / sort the job posts
+            else:
+                operated_posts = posts
+                for key, val in request_contents.items():
+                    operation, kw = key.split("_")
+                    if operation == "filter":
+                        operated_posts = filter_results(operated_posts, kw, val)
+                    else:
+                        operated_posts = sort_results(operated_posts, kw, val)
+                return render_template("job_manage.html", name=session.get("user_name"), posts=operated_posts)
         except Exception as e:
             print(e)
     return render_template("job_manage.html", name=session.get("user_name"), posts=posts)

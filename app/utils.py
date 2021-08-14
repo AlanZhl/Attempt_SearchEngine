@@ -97,7 +97,7 @@ def create_userinfo(raw_user):
     return user
 
 
-# filter from a list of displayable results (format shown in function "create_post")
+# non-destructive filter from a list of displayable results (format shown in function "create_post")
 def filter_results(results, kw, val):
     filtered_results = []
     try:
@@ -142,14 +142,14 @@ def filter_results(results, kw, val):
                 if user[kw] == val:
                     filtered_results.append(user)
     except Exception as e:
-        MyError.display("JobFilter Error" + MyError.UI_REQUEST_UNKNOWN + "unknown keyword sent by UI.")
+        MyError.display("JobFilter Error", MyError.UI_REQUEST_UNKNOWN, "unknown keyword sent by UI.")
         print(e)
         return results
 
     return filtered_results
 
 
-# sort a list of displayable results
+# destructively sort a list of displayable results
 def sort_results(results, kw, val):
     try:
         if kw == "salary":
@@ -173,7 +173,7 @@ def sort_results(results, kw, val):
             else:
                 sort_helper(results, lambda x : x[field])
     except Exception as e:
-        MyError.display("JobFilter Error" + MyError.UI_REQUEST_UNKNOWN + "unknown keyword sent by UI.")
+        MyError.display("JobFilter Error", MyError.UI_REQUEST_UNKNOWN, "unknown keyword sent by UI.")
         print(e)
     
     return results
