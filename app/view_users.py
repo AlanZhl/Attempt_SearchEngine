@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, session, redirect
+from flask import Blueprint, render_template, request, session, redirect, make_response
 from app.utils import checkByEmail, checkByName, checkExistence, create_userinfo, filter_results, sort_results
 from app.models import db, Users, Permissions
 from app.common import permission_check
@@ -53,8 +53,11 @@ def login():
         session["user_name"] = user.name
         return redirect("/")
     else:
+        # TODO: when attempting to login, the session and cookies of the former user would be cleared!
         if session.get("user_id"): session.clear()
-        return render_template("login.html")
+        resp = make_response(render_template("login.html"))
+        resp.delete_cookie("favored_posts")
+        return resp
 
 
 @users.route("/user_manage", methods=["POST", "GET"])

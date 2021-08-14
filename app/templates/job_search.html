@@ -12,14 +12,36 @@
     </head>
 
     <body style="font-family:'Microsoft YaHei';color:rgb(0, 0, 0)">
-        <h2 style="font-family:'Microsoft YaHei';color:rgba(2, 150, 59, 0.904)">
-            Hello, 
-            {% if name %}
-            {{ name }}!
-            {% else %}
-            tourist!
-            {% endif %}
-        </h2>
+        <div class="row justify-content-between">
+            <div class="col-10 col-md-10">
+                <h2 style="font-family:'Microsoft YaHei';color:rgba(2, 150, 59, 0.904)">
+                    Hello, 
+                    {% if name %}
+                    {{ name }}!
+                    {% else %}
+                    tourist!
+                    {% endif %}
+                </h2>
+            </div>
+            <div class="col-2 col-md-2">
+                <form method="POST">
+                    <button type="submit" class="btn" name="show_favors" value="favors"
+                    style="font-size:16px;background-color:#5bd157;">
+                        My Favored Posts
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {% for error in errors %}
+        <div class="alert alert-danger alert-dismissable" role="alert">
+            <div class="error">
+                <span class="sr-only">Error:</span>
+                {{ error }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+        </div>
+        {% endfor %}
 
         <div id="searchbar-container" class="col-md-8 col-md-offset-2">
             <form method="post" id="searchForm" accept-charset="utf-8" autocomplete="off" role="form" class="form-horizontal">
@@ -109,6 +131,7 @@
                     <th data-field="company">Company</th>
                     <th data-field="salary">Salary</th>
                     <th data-field="date">Post Date</th>
+                    <th date-field="operation">Operations</th>
                 </tr>
             </thead>
             <tbody>
@@ -121,6 +144,18 @@
                     <td data-value="content_company">{{ post["company"] }}</td>
                     <td data-value="content_salary">{{ post["salary"] }}</td>
                     <td data-value="content_date"> {{ post["date"] }}</td>
+                    <td data-value="content_operations">
+                        <form method="POST">
+                            <button type="submit" class="btn" 
+                            name="favor" value="{{loop.index}}" style="background-color:#5bd157;"> 
+                                Favor
+                            </button>
+                            <button type="submit" class="btn" 
+                            name="unfavor" value="{{loop.index}}" style="background-color:#e29b4a;"> 
+                                Unfavor
+                            </button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
                 {% endif %}

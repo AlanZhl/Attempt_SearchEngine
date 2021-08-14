@@ -1,7 +1,7 @@
 from datetime import datetime
 import elasticsearch
 from elasticsearch import helpers
-from flask import Blueprint, request, session
+from flask import Blueprint, request, session, make_response
 from flask.templating import render_template
 from werkzeug.utils import redirect
 
@@ -9,31 +9,6 @@ from app.models import db, es, JobPost, Permissions, Users, MyError
 from app.common import permission_check
 from .utils import create_post, filter_results, sort_results, genESPost
 
-
-# temporary sample data
-sample_data = [
-    {
-        "title": "Sofrware Engineer", 
-        "link": "https://sg.indeed.com/pagead/clk?mo=r&ad=-6NYlbfkN0AuWpd06JaTHFjvTB_5q6-0gBNCyrzTNez_CNw5GfFr-Uvaof5dLYkpXw27dWLYNm-xa2NTOhaWsJIcFGY_PviZ18DfiyayAnH2x4AQ-DXLnPuw41TvRlXrUJVBLV3RxCukWhyi27D9SKPicRKdGvisheEPs2OXimYc59LWcHe4aMiedoH8Fhs4mKK30vCW5Ov5n94vVtNitjdJLSrFDr9TOHJiWKB0bEOkiibfWXaLbhxpxontuwzvgpsYX6ktEvaBY4bwCGhOms9BMJjPrnt7zo964QIiEAioF1O00mo4mFObxKwnOmJEr9cn-j-JkBlbuBO7L22xvkmSu5ypGROq_uae_fR_sZLxGytpJh8a9rByaANZ4TPYuJwE0AxPr0Lo3ZoKyGsWDNoEPYLaiEsgAzE2agvbC48T-1WK65vUmIBpxvq7n_sxs6TPOWZVou29BqqsJt1dHpXnXXQFF7sN4iNunqylGFJYGyeRg4fT6eLogJtC8KZqfW1EY4oXlKHsuAQZeqCM-PIhrmv0rYe-jOYFcJ4rL_CZsu55T_X304OFuzsZsmuDVq3Xovh928r5wB_FC1_TmkuHn5092DcMnqnKbX3f4DoKagFRUIn0CdzGZDXOgtAo-SLcROBx6EmZ6kbZjsvesYMHjNVc5YnD_f8p8oz9q-eNi1BMikbAzvUsqrlDwMKXcT_WS3Y4at-RQx_aKtgAgPe8jXEJsm0DH7GhpJI7y8f11owZdH4vl5QAaVJIGUL-ytiQBS-st7g=&p=0&fvj=0&vjs=3",
-        "company": "SOFTENGER (SINGAPORE) PTE. LTD.",
-        "salary": "$5000 - $6500 a month",
-        "date": "2021-07-31"
-    },
-    {
-        "title": "[EIPIC] Finance Executive", 
-        "link": "https://sg.indeed.com/pagead/clk?mo=r&ad=-6NYlbfkN0AuWpd06JaTHFjvTB_5q6-0gBNCyrzTNez_CNw5GfFr-Uvaof5dLYkpQptHyIobf6wgmBdiqDP19eQfjBdkjP-eFEFNCevFTa36BnNQhcTk35iZlzBtnzuQ5xzVCsqGiEkrCEROfIb4oaoi0UStZrC6hN56Ieg2DFZ8rAfbGovtylZHntBJB1ZzVaKbd_vNxmm9g8XQ06EDSQsxxl4iwFNhJeIR2z6IeF3bO8626Mt47OHDzqI_jDGon2mFybJNpLByVeSg5ZydvwvE97_ZgeUEsQ6kxoILug_lWqlBeSzHTdKveI8ytiCGAu8t6wFc2IXXdvo9ECXhI10tpB3cE1Tutx5jH-IrlA98Fhfi7qe2qHqZTLRX6zp5vqIqdpcc0xTNg5JPCiQP4IcCpSBDlNeWTjOzRGrKbiaYTZArjRo8lob5V90yfC1u5c1lbTXhSUz6nFchfqN243nxQrI6_Zx61JoTUgewRhXDeCysf2DHVSpIJWi6hnQtQOyvCe5x-rl_O5narKrV6HPMD4mXwaeXYg2LEkKcmgu9GBWFLjSeeiE3nBX7nuMIIoiTyTOtOhE7NXRYqiZhujke9OVKSlI3VzkxlnRMdn7LdIBuov3GJFU49BX7K_k6lpC_cg-kMve3Uqj8D9rUwgahMF2AYTtFJ73auSWE0HefQw32IjX6SwW8jmi0jHJ67fuKev6jwGUII2-Gp1Oz3p4pcjEBvDzaXsLhBocS1o9kaxznhXmVtShnwoUNQcSlN1uiJpfDL25mWLLGFsr49TPRalzEog_PClS2CDAHF3wGfutzmP08VKkhml6i_EWy1zIRkOaYyY8=&p=1&fvj=0&vjs=3",
-        "company": "THYE HUA KWAN MORAL CHARITIES LIMITED",
-        "salary": "$2510 - $3030 a month",
-        "date": "2021-07-31"
-    },
-    {
-        "title": "Sofrware Engineer", 
-        "link": "https://sg.indeed.com/rc/clk?jk=254952268b4e141e&fccid=8975b9f5b98c2e9d&vjs=3",
-        "company": "A2000 Solutions Pte Ltd",
-        "salary": "not given",
-        "date": "2021-08-01"
-    }
-]
 
 query = {
     "_source": ['post_id'],
@@ -54,8 +29,10 @@ jobs = Blueprint("jobs", __name__)
 
 @jobs.route("/", methods=["POST", "GET"])
 def job_searching():
+    posts = session.get("search_results")
     if request.method == "POST":
         info = request.form
+        print(info)
         keys = info.keys()
         # case 1: receiving request from the search bar
         if "keyword" in keys:
@@ -73,19 +50,43 @@ def job_searching():
                 displays[id_dict[record.post_id]] = create_post(record)    # reorder the search results as how they were returned from ES
             session["search_results"] = displays    # TODO: store the search results temporarily at the server
             return render_template("job_search.html", name=session.get("user_name"), posts=displays)
-        # case 2: receiving response from the filters or sorters
+        # case 2: favor / unfavor a job post (stored in cookies)
+        if "favor" in keys or "unfavor" in keys:
+            id_str = request.cookies.get("favored_posts")
+            resp = make_response(render_template("job_search.html", name=session.get("user_name"), posts=posts))
+            if posts:
+                if "favor" in keys:
+                    val = int(info.get("favor"))
+                    id = str(posts[val-1]["post_id"])
+                    if not id_str:
+                        resp.set_cookie("favored_posts", id, max_age=2592000)
+                    else:
+                        id_lst = id_str.split("_")
+                        if id not in id_lst:
+                            id_lst.append(id)
+                            resp.set_cookie("favored_posts", "_".join(id_lst), max_age=2592000)
+                else:
+                    val = int(info.get("unfavor"))
+                    if id_str:
+                        id = str(posts[val-1]["post_id"])
+                        id_lst = id_str.split("_")
+                        if id in id_lst:
+                            id_lst.remove(id)
+                            resp.set_cookie("favored_posts", "_".join(id_lst), max_age=2592000)
+            return resp
+        # case 3: receiving response from the filters or sorters
         else:
-            operated_results = session.get("search_results")
+            operated_results = posts
             if operated_results:
                 for key, val in request.form.items():    # different filters and sorters can add up
                     operation, kw = key.split("_")
                     if operation == "filter":
-                        operated_results = filter_results(operated_results, kw, val)
+                        operated_results = filter_results(operated_results, kw, val)    # non-destructive
                     else:
-                        operated_results = sort_results(operated_results, kw, val)
+                        operated_results = sort_results(operated_results, kw, val)    # !! destructive
             return render_template("job_search.html", name=session.get("user_name"), posts=operated_results)
     else:
-        return render_template("job_search.html", name=session.get("user_name"), posts=sample_data)
+        return render_template("job_search.html", name=session.get("user_name"), posts=posts)
 
 
 @jobs.route("/job_manage", methods=["POST", "GET"])
