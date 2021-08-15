@@ -44,7 +44,6 @@ def update_jobposts(db, es, keyword, driver_name, pageStart=0, date=1):
     for page in range(pageStart, pageStart + 250, 10): # 25 pages at a time (needs modification!)
         web_content = get_webcontent(driver, keyword, date, page)
         time.sleep(random.randint(400, 600) / 1000)
-        # print(web_content)
         if web_content == None:
             break
         posts = extract_info(web_content)

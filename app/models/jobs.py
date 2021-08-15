@@ -63,7 +63,6 @@ class JobPost(db.Model):
             num = ""
             for ch in dateString:
                 ascii = ord(ch)
-                print("I am here inside date")
                 if ascii >= 48 and ascii <= 57:
                     num += ch
                 else:

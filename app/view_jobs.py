@@ -34,8 +34,11 @@ def job_searching():
         info = request.form
         print(info)
         keys = info.keys()
+        # case 0: show the favored posts of the user
+        if "show_favors" in keys:
+            return redirect("/job_favors")
         # case 1: receiving request from the search bar
-        if "keyword" in keys:
+        elif "keyword" in keys:
             query["query"]["multi_match"]["query"] = info["keyword"]
             response = es.search(index="index_jobposts", body=query)["hits"]["hits"]
             idx = 0
@@ -137,7 +140,6 @@ def job_managing():
     return render_template("job_manage.html", name=session.get("user_name"), posts=posts)
 
 
-# TODO: test the integrated process
 @jobs.route("/job_create", methods=["POST", "GET"])
 @permission_check(Permissions.JOB_CREATE)
 def create_jobpost():
@@ -166,3 +168,19 @@ def create_jobpost():
             print(e)
             return render_template("job_create.html", errors=["Sorry, job creation failed due to server error."])
     return render_template("job_create.html")
+
+
+@jobs.route("/job_favors", methods=["POST", "GET"])
+def show_favors():
+    id_str = request.cookies.get("favored_posts")
+    print(id_str)
+    posts = []
+    if id_str:
+        id_lst = []
+        id_str_lst = id_str.split("_")
+        for id in id_str_lst:
+            id_lst.append(int(id))
+        raw_posts = JobPost.query.filter(JobPost.post_id.in_(id_lst))
+        for post in raw_posts:
+            posts.append(create_post(post))
+    return render_template("job_favors.html", name=session.get("user_name"), posts=posts)
