@@ -7,7 +7,7 @@ from werkzeug.utils import redirect
 
 from app.models import db, es, JobPost, Permissions, Users, MyError
 from app.common import permission_check
-from .utils import create_post, filter_results, sort_results, genESPost
+from .utils import create_post, filter_results, sort_helper, sort_results, genESPost
 
 
 query = {
@@ -171,16 +171,45 @@ def create_jobpost():
 
 
 @jobs.route("/job_favors", methods=["POST", "GET"])
+@permission_check(Permissions.JOB_FAVOR)
 def show_favors():
+    # preprocessing: find all the favored job posts
     id_str = request.cookies.get("favored_posts")
-    print(id_str)
+    id_str_lst = []    # id_str_lst and posts would be used throughout the function
     posts = []
     if id_str:
-        id_lst = []
         id_str_lst = id_str.split("_")
+        id_lst = []
         for id in id_str_lst:
             id_lst.append(int(id))
         raw_posts = JobPost.query.filter(JobPost.post_id.in_(id_lst))
         for post in raw_posts:
             posts.append(create_post(post))
+    
+    if request.method == "POST":
+        request_content = request.form
+        keys = request_content.keys()
+        # case 1: remove a favored post from the favored list
+        if "unfavor" in keys:
+            try:
+                if id_str:
+                    idx = int(request_content.get("unfavor")) - 1
+                    post = posts.pop(idx)
+                    id = str(post["post_id"])
+                    resp = make_response(render_template("job_favors.html", name=session.get("user_name"), posts=posts))
+                    print("outside")
+                    if id in id_str_lst:
+                        print("inside")
+                        id_str_lst.remove(id)
+                        resp.set_cookie("favored_posts", "_".join(id_str_lst), max_age=2592000)
+                    return resp
+            except Exception as e:
+                print(e)
+        # case 2: sort the favored posts
+        else:
+            for key, val in request_content.items():
+                operation, kw = key.split("_")
+                if operation == "sort":
+                    posts = sort_results(posts, kw, val)
+
     return render_template("job_favors.html", name=session.get("user_name"), posts=posts)
