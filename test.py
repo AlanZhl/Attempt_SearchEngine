@@ -1,5 +1,6 @@
 from app import create_app, db, es
 from app.models import JobPost
+from elasticsearch import client
 
 
 app = create_app()
@@ -7,7 +8,7 @@ app = create_app()
 # test the return value of a query in elasticsearch
 query = {
     "_source": ['post_id'],
-    "size": 30,
+    "size": 15,
     "query": {
         "multi_match": {
             "query": "software",
@@ -20,7 +21,9 @@ query = {
 # es query test
 def test_ES_query():
     response = es.search(index="index_jobposts", body=query)["hits"]["hits"]
-    print(len(response))
+    for item in response:
+        print(item)
+    #print(len(response))
     id_lst = [record["_source"]["post_id"] for record in response]
     print(id_lst)
 
@@ -34,6 +37,16 @@ def test_ES_create(id, title, company, description):
         "description": description
     }
     es.create(index="test_jobposts", id=123, body=body)
+
+
+def test_ES_analyze(kw):
+    body = {
+        "text": kw
+    }
+    es_client = client.IndicesClient(es)
+    response = es_client.analyze(index="index_jobposts", body=body)
+    for item in response["tokens"]:
+        print(item)
 
 
 # mysql query test
@@ -80,5 +93,6 @@ def create_es_test(es):
 
 
 if __name__ == "__main__":
-    test_ES_create(123, "software engineer_for test", "test_company", "test description.")
+    #test_ES_create(123, "software engineer_for test", "test_company", "test description.")
     # test_MySQL_query()
+    test_ES_analyze("software, engineer, java, Java")
