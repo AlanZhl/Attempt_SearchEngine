@@ -78,7 +78,7 @@
                     <td data-value="content_operations">
                         <form method="POST">
                             <button type="submit" class="btn" 
-                            name="unfavor" value="{{loop.index}}" style="background-color:#fa4c35;"> 
+                            name="unfavor" value="{{loop.index}}" style="background-color:#e29b4a;"> 
                                 Unfavor
                             </button>
                         </form>
@@ -97,8 +97,8 @@
     <script>
         function detailFormatter(index, row) {
             var html = []
-            html.push('<p><b>' + "title" + ':</b> ' + row["title"] + '</p>')
             html.push('<p><b>' + "description" + ':</b> ' + $("#desc-" + (index+1)).val() + '</p>')
+            html.push('<p><b>' + "salary" + ':</b> ' + row["salary"] + '</p>')
             html.push('<p><b>' + "date" + ':</b> ' + row["date"] + '</p>')
             return html.join('');
         }

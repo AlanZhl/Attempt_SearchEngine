@@ -12,7 +12,7 @@
     </head>
 
     <body style="font-family:'Microsoft YaHei';color:rgb(0, 0, 0)">
-        <h2 style="font-family:'Microsoft YaHei';color:rgba(38, 17, 226, 0.904)">
+        <h2 style="font-family:'Microsoft YaHei';color:rgba(3, 160, 37, 0.904)">
             Thanks for your cooperation, 
             {{ name }}!
         </h2>
@@ -41,7 +41,7 @@
                         </select>
                     </div>
                     <div class="col-md-1">
-                        <button type="submit" id="submit_1" class="btn" tabindex="1" style="font-size:12px;background-color:#519ff8;">
+                        <button type="submit" id="submit_1" class="btn" tabindex="1" style="font-size:12px;background-color:#08b602;">
                             Reorganize
                         </button>
                     </div>
@@ -66,7 +66,7 @@
             data-detail-view="true"
             data-detail-formatter="detailFormatter"
             style="background:rgba(255,255,255,0.6);padding:10px">
-            <thead style="background:rgb(165, 179, 224);padding:10px">
+            <thead style="background:rgba(146, 233, 165, 0.904);padding:10px">
                 <tr class="tr-class-1">
                     <th data-field="title">Job Title</th>
                     <th data-field="salary">Salary</th>
@@ -107,8 +107,8 @@
     <script>
         function detailFormatter(index, row) {
             var html = []
-            html.push('<p><b>' + "title" + ':</b> ' + row["title"] + '</p>')
             html.push('<p><b>' + "description" + ':</b> ' + $("#desc-" + (index+1)).val() + '</p>')
+            html.push('<p><b>' + "salary" + ':</b> ' + row["salary"] + '</p>')
             html.push('<p><b>' + "date" + ':</b> ' + row["date"] + '</p>')
             return html.join('');
         }

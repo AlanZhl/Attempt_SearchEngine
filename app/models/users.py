@@ -47,7 +47,7 @@ class Roles(db.Model):
         permission_dict = {
             "jobseeker" : [Permissions.JOB_FAVOR],
             "company" : [Permissions.JOB_FAVOR, Permissions.JOB_CREATE, Permissions.JOB_MANAGE],
-            "admin" : [Permissions.JOB_FAVOR, Permissions.JOB_MANAGE, Permissions.USER_MANAGE]
+            "admin" : [Permissions.JOB_FAVOR, Permissions.USER_MANAGE]
         }
         try:
             for role_name in role_lst:
