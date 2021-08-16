@@ -6,21 +6,10 @@ from werkzeug.utils import redirect
 
 from app.models import db, es, JobPost, Permissions, MyError
 from app.common import permission_check
-from .utils import create_post, filter_results, sort_results, genESPost, split_kw, transfer_history_2dict, transfer_history_2str
+from .config import Config
+from .utils import create_post, get_post_MySQL, filter_results, sort_results, genESPost, \
+                split_keyword, transfer_history_2dict, transfer_history_2str, get_hotspots
 
-
-query = {
-    "_source": ['post_id'],
-    "size": 200,
-    "query": {
-        "multi_match": {
-            "query": "software",
-            "type": "best_fields",
-            "fields": ["title", "description"],
-            "tie_breaker": 0.3
-        }
-    }
-}    # return 200 results a time in real practice
 
 
 jobs = Blueprint("jobs", __name__)
@@ -33,6 +22,7 @@ def job_searching():
         info = request.form
         print(info)
         keys = info.keys()
+
         # case 1: log out from the current user
         if "logout" in keys:
             # when attempting to logout, the session and cookies of the former user would be cleared!
@@ -41,38 +31,32 @@ def job_searching():
             resp.delete_cookie("favored_posts")
             resp.delete_cookie("search_history")
             return resp
+
         # case 2: show the favored posts of the user
         elif "show_favors" in keys:
             return redirect("/job_favors")
+
         # case 3: receiving request from the search bar
         elif "keyword" in keys:
             # step 1) record the resulting post ids from es
+            query = Config.QUERY.copy()
             query["query"]["multi_match"]["query"] = info["keyword"]
             response = es.search(index="index_jobposts", body=query)["hits"]["hits"]
-            idx = 0
-            id_dict = {}    # order of the results sorted by the scores
-            for record in response:
-                id_dict[record["_source"]["post_id"]] = idx
-                idx += 1
-            
             # step 2) retrieve the records from MySQL and rearrange them according to the order in id_dict (match scores)
-            search_results = JobPost.query.filter(JobPost.post_id.in_(id_dict.keys()))
-            displays = [None] * idx
-            for record in search_results:
-                displays[id_dict[record.post_id]] = create_post(record)    # reorder the search results as how they were returned from ES
-            session["search_results"] = displays    # TODO: store the search results temporarily at the server
-            
+            # TODO: store the search results temporarily at the server
+            session["search_results"] = get_post_MySQL(response)
             # step 3) record the search history and render the resulting page
-            words = split_kw(es, info["keyword"])
+            words = split_keyword(es, info["keyword"])
             history = transfer_history_2dict(request.cookies.get("search_history"))
             for word in words:
                 if history.get(word):
                     history[word] += 1
                 else:
                     history[word] = 1
-            resp = make_response(render_template("job_search.html", name=session.get("user_name"), posts=displays))
+            resp = make_response(render_template("job_search.html", name=session.get("user_name"), posts=session["search_results"]))
             resp.set_cookie("search_history", transfer_history_2str(history), max_age=2592000)
             return resp
+
         # case 4: favor / unfavor a job post (stored in cookies)
         if "favor" in keys or "unfavor" in keys:
             id_str = request.cookies.get("favored_posts")
@@ -98,6 +82,7 @@ def job_searching():
                             id_lst.remove(id)
                             resp.set_cookie("favored_posts", "_".join(id_lst), max_age=2592000)
             return resp
+
         # case 5: receiving response from the filters or sorters
         else:
             operated_results = posts
@@ -109,8 +94,32 @@ def job_searching():
                     else:
                         operated_results = sort_results(operated_results, kw, val)    # !! destructive
             return render_template("job_search.html", name=session.get("user_name"), posts=operated_results)
+    # get request processing (recommendation)
     else:
-        return render_template("job_search.html", name=session.get("user_name"), posts=posts)
+        recommend_posts = []
+        favored_list = []
+        history_str = request.cookies.get("search_history")
+        favors = request.cookies.get("favored_posts")
+        if favors:
+            favored_str_list = favors.split("_")
+            for id in favored_str_list:
+                favored_list.append(int(id))
+        if history_str:
+            history_str, hotspots = get_hotspots(history_str)    # this function would change the order of history_str as well
+            recommend_query = Config.QUERY.copy()
+            recommend_query["size"] = 100
+            recommend_query["query"]["multi_match"]["query"] = ", ".join(hotspots)
+            response = es.search(index="index_jobposts", body=recommend_query)["hits"]["hits"]
+            filtered_response = []
+            cnt = 0
+            for record in response:
+                if record["_source"]["post_id"] not in favored_list:
+                    cnt += 1
+                    filtered_response.append(record)
+                if cnt == 10:
+                    break
+            recommend_posts = get_post_MySQL(filtered_response)
+        return render_template("job_search.html", name=session.get("user_name"), posts=recommend_posts)
 
 
 @jobs.route("/job_manage", methods=["POST", "GET"])
@@ -128,6 +137,7 @@ def job_managing():
             # case 1: jump to the creation page
             if "create" in request_contents.keys():
                 return redirect("/job_create")
+
             # case 2: delete a job post (from both MySQL and ES)
             elif "delete" in request_contents.keys():
                 idx = int(request_contents["delete"]) - 1
@@ -146,6 +156,7 @@ def job_managing():
                     }
                 }
                 es.delete_by_query(index="index_jobposts", body=delete_query)
+
             # case 3: filter / sort the job posts
             else:
                 operated_posts = posts
@@ -226,6 +237,7 @@ def show_favors():
                     return resp
             except Exception as e:
                 print(e)
+
         # case 2: sort the favored posts
         else:
             for key, val in request_content.items():

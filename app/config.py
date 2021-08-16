@@ -12,3 +12,16 @@ class Config():
     SESSION_PERMANENT = False
     SESSION_USE_SIGNER = False
     SESSION_KEY_PREFIX = 'session'
+
+    QUERY = {
+        "_source": ['post_id'],
+        "size": 200,
+        "query": {
+            "multi_match": {
+                "query": "software",
+                "type": "best_fields",
+                "fields": ["title", "description"],
+                "tie_breaker": 0.3
+            }
+        }
+    }    # return 200 results a time in real practice

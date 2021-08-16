@@ -2,7 +2,7 @@ from passlib.hash import bcrypt_sha256
 from datetime import date
 from elasticsearch import client
 
-from app.models import Users, MyError
+from app.models import Users, JobPost, MyError
 
 
 # used for name and email checks in a registration process
@@ -37,6 +37,20 @@ def checkByEmail(email, password):
     elif not bcrypt_sha256.verify(str(password), user.password):
         errors.append("Password does not match the given user. Pls try again.")
     return errors
+
+
+# get the corresponding job post records from MySQL with the searching result
+def get_post_MySQL(response):
+    idx = 0
+    id_dict = {}    # order of the results sorted by the scores
+    for record in response:
+        id_dict[record["_source"]["post_id"]] = idx
+        idx += 1
+    search_results = JobPost.query.filter(JobPost.post_id.in_(id_dict.keys()))
+    displays = [None] * idx
+    for record in search_results:
+        displays[id_dict[record.post_id]] = create_post(record)    # reorder the search results as how they were returned from ES
+    return displays
 
 
 # turn a MySQL record object into a displayable post
@@ -254,7 +268,7 @@ def merge(lst, key, start, mid, end):
 
 
 # split a search keyword with the default analyzer adopted by "index_jobposts"
-def split_kw(es, kw):
+def split_keyword(es, kw):
     body = {
         "text": kw
     }
@@ -285,3 +299,50 @@ def transfer_history_2str(history_dict):
         for key, val in history_dict.items():
             str_list.append("_".join([key, str(val)]))
     return "&".join(str_list)
+
+
+def get_hotspots(history_str):
+    history_list = []
+    hotspots = []
+    history_str_new = ""
+    if history_str:
+        history_str_list = history_str.split("&")
+        for record in history_str_list:
+            key, val = record.split("_")
+            history_list.append((key, int(val)))
+        hotspots = find_hotest_records(history_list, 3)
+        history_str_list_new = []
+        for record in history_list:
+            history_str_list_new.append("_".join([record[0], str(record[1])]))
+        history_str_new = "&".join(history_str_list_new)
+    return history_str_new, hotspots
+
+
+def find_hotest_records(records, num):
+    length = len(records)
+    if num < 1 or num > length:
+        num = length
+        
+    find_hotest_records_helper(records, 0, length-1, num)
+    
+    hotspots = [""] * num
+    for i in range(num):
+        hotspots[i] = records[i][0]
+    return hotspots
+
+
+def find_hotest_records_helper(records, start, end, num):
+    if start < end:
+        pivot = records[start][1]
+        bound = start
+        for i in range(start + 1, end + 1):
+            if records[i][1] > pivot:
+                bound += 1
+                records[i], records[bound] = records[bound], records[i]
+        records[start], records[bound] = records[bound], records[start]
+        if bound + 1 == num:
+            return
+        elif bound + 1 < num:
+            find_hotest_records_helper(records, bound + 1, end, num)
+        else:
+            find_hotest_records_helper(records, start, bound - 1, num)
