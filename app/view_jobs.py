@@ -1,13 +1,12 @@
-from datetime import datetime
 import elasticsearch
 from elasticsearch import helpers
 from flask import Blueprint, request, session, make_response
 from flask.templating import render_template
 from werkzeug.utils import redirect
 
-from app.models import db, es, JobPost, Permissions, Users, MyError
+from app.models import db, es, JobPost, Permissions, MyError
 from app.common import permission_check
-from .utils import create_post, filter_results, sort_helper, sort_results, genESPost
+from .utils import create_post, filter_results, sort_results, genESPost, split_kw, transfer_history_2dict, transfer_history_2str
 
 
 query = {
@@ -34,11 +33,20 @@ def job_searching():
         info = request.form
         print(info)
         keys = info.keys()
-        # case 0: show the favored posts of the user
-        if "show_favors" in keys:
+        # case 1: log out from the current user
+        if "logout" in keys:
+            # when attempting to logout, the session and cookies of the former user would be cleared!
+            if session.get("user_id"): session.clear()
+            resp = make_response(redirect("/login"))
+            resp.delete_cookie("favored_posts")
+            resp.delete_cookie("search_history")
+            return resp
+        # case 2: show the favored posts of the user
+        elif "show_favors" in keys:
             return redirect("/job_favors")
-        # case 1: receiving request from the search bar
+        # case 3: receiving request from the search bar
         elif "keyword" in keys:
+            # step 1) record the resulting post ids from es
             query["query"]["multi_match"]["query"] = info["keyword"]
             response = es.search(index="index_jobposts", body=query)["hits"]["hits"]
             idx = 0
@@ -47,17 +55,30 @@ def job_searching():
                 id_dict[record["_source"]["post_id"]] = idx
                 idx += 1
             
+            # step 2) retrieve the records from MySQL and rearrange them according to the order in id_dict (match scores)
             search_results = JobPost.query.filter(JobPost.post_id.in_(id_dict.keys()))
             displays = [None] * idx
             for record in search_results:
                 displays[id_dict[record.post_id]] = create_post(record)    # reorder the search results as how they were returned from ES
             session["search_results"] = displays    # TODO: store the search results temporarily at the server
-            return render_template("job_search.html", name=session.get("user_name"), posts=displays)
-        # case 2: favor / unfavor a job post (stored in cookies)
+            
+            # step 3) record the search history and render the resulting page
+            words = split_kw(es, info["keyword"])
+            history = transfer_history_2dict(request.cookies.get("search_history"))
+            for word in words:
+                if history.get(word):
+                    history[word] += 1
+                else:
+                    history[word] = 1
+            resp = make_response(render_template("job_search.html", name=session.get("user_name"), posts=displays))
+            resp.set_cookie("search_history", transfer_history_2str(history), max_age=2592000)
+            return resp
+        # case 4: favor / unfavor a job post (stored in cookies)
         if "favor" in keys or "unfavor" in keys:
             id_str = request.cookies.get("favored_posts")
             resp = make_response(render_template("job_search.html", name=session.get("user_name"), posts=posts))
             if posts:
+                # "favored_posts" are splitted with "_"
                 if "favor" in keys:
                     val = int(info.get("favor"))
                     id = str(posts[val-1]["post_id"])
@@ -77,7 +98,7 @@ def job_searching():
                             id_lst.remove(id)
                             resp.set_cookie("favored_posts", "_".join(id_lst), max_age=2592000)
             return resp
-        # case 3: receiving response from the filters or sorters
+        # case 5: receiving response from the filters or sorters
         else:
             operated_results = posts
             if operated_results:

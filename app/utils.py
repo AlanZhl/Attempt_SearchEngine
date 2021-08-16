@@ -1,7 +1,8 @@
 from passlib.hash import bcrypt_sha256
-from datetime import date, timedelta
+from datetime import date
+from elasticsearch import client
 
-from app.models import Users, JobPost, MyError
+from app.models import Users, MyError
 
 
 # used for name and email checks in a registration process
@@ -57,17 +58,6 @@ def create_post(record):
     return post
 
 
-# generate a job post in ES-required format
-def genESPost(post, id):
-    esPost = {}
-    esPost["_index"] = "index_jobposts"
-    esPost["post_id"] = id
-    esPost["title"] = post["title"]
-    esPost["company"] = post["company"]
-    esPost["description"] = post["snippet"]
-    return esPost
-
-
 # check if the job post with post_id "id" already exists in ES
 def checkESPost(es, id):
     query = {
@@ -78,6 +68,17 @@ def checkESPost(es, id):
         }
     }
     return es.search(index="index_jobposts", body=query)["hits"]["total"]["value"] > 0
+
+
+# generate a job post in ES-required format
+def genESPost(post, id):
+    esPost = {}
+    esPost["_index"] = "index_jobposts"
+    esPost["post_id"] = id
+    esPost["title"] = post["title"]
+    esPost["company"] = post["company"]
+    esPost["description"] = post["snippet"]
+    return esPost
 
 
 # turn a MySQL user object into a displayable form
@@ -250,3 +251,37 @@ def merge(lst, key, start, mid, end):
     # dual_pivot_quicksort(lst, start, bound_left - 1)
     # dual_pivot_quicksort(lst, bound_left + 1, bound_right - 1)
     # dual_pivot_quicksort(lst, bound_right + 1, end)
+
+
+# split a search keyword with the default analyzer adopted by "index_jobposts"
+def split_kw(es, kw):
+    body = {
+        "text": kw
+    }
+    es_client = client.IndicesClient(es)
+    response = es_client.analyze(index="index_jobposts", body=body)
+    words = []
+    for item in response["tokens"]:
+        words.append(item["token"])
+    return words
+    
+
+# transfer a search history from cookies to python dict
+def transfer_history_2dict(history_str):
+    history_dict = {}
+    if history_str:
+        items = history_str.split("&")
+        for item in items:
+            if item != "":
+                key, val = item.split("_")
+                history_dict[key] = int(val)
+    return history_dict
+
+
+# transfer a search history from python dict to a cookie string
+def transfer_history_2str(history_dict):
+    str_list = []
+    if history_dict:
+        for key, val in history_dict.items():
+            str_list.append("_".join([key, str(val)]))
+    return "&".join(str_list)

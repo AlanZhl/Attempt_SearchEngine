@@ -13,7 +13,7 @@
 
     <body style="font-family:'Microsoft YaHei';color:rgb(0, 0, 0)">
         <div class="row justify-content-between">
-            <div class="col-10 col-md-10">
+            <div class="col-9 col-md-9">
                 <h2 style="font-family:'Microsoft YaHei';color:rgba(21, 34, 218, 0.904)">
                     Hello, 
                     {% if name %}
@@ -23,11 +23,17 @@
                     {% endif %}
                 </h2>
             </div>
-            <div class="col-2 col-md-2">
-                <form method="POST">
+            <div class="col-3 col-md-3" style="margin-top:1%;">
+                <form method="POST" class="col-md-2">
                     <button type="submit" class="btn" name="show_favors" value="favors"
-                    style="margin-top:10%;font-size:16px;background-color:#1adfe6;">
+                    style="font-size:16px;background-color:#1adfe6;">
                         My Favored Posts
+                    </button>
+                </form>
+                <form method="POST" class="col-md-1 col-md-offset-5">
+                    <button type="submit" class="btn" name="logout" value="logout"
+                    style="font-size:16px;background-color:#f37340;">
+                        Log out
                     </button>
                 </form>
             </div>
