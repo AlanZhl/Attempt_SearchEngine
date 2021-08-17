@@ -71,8 +71,14 @@ def user_manage():
     if request.method == "POST":
         try:
             request_content = request.form
-            # case 1: search (exact match)
-            if "keyword" in request_content.keys():
+            keys = request_content.keys()
+
+            # case 1: return to main page (job_search.html)
+            if "return" in keys:
+                return redirect("/")
+
+            # case 2: search (exact match)
+            elif "keyword" in keys:
                 operated_users = []
                 field, val = request_content.get("search_kw"), request_content["keyword"]
                 if field:
@@ -82,8 +88,9 @@ def user_manage():
                         if user.get(field) == val:
                             operated_users.append(user)
                 return render_template("user_manage.html", users=operated_users, name=session.get("user_name"))
-            # case 2: delete a user
-            elif "delete" in request_content.keys():
+            
+            # case 3: delete a user
+            elif "delete" in keys:
                 idx = int(request_content["delete"]) - 1
                 user = users[idx]
                 record = Users.query.filter_by(user_id=user["user_id"]).first()
@@ -92,7 +99,8 @@ def user_manage():
                 db.session.commit()
                 db.session.close()
                 return render_template("user_manage.html", users=users, name=session.get("user_name"))
-            # case 3: filter or sort the current user list
+
+            # case 4: filter or sort the current user list
             else:
                 operated_users = []
                 for key, val in request.form.items():

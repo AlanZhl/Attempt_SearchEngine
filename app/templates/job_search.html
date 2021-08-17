@@ -12,18 +12,36 @@
     </head>
 
     <body style="font-family:'Microsoft YaHei';color:rgb(0, 0, 0)">
-        <div class="row justify-content-between">
-            <div class="col-9 col-md-9">
+        <div class="row justify-content-end">
+            <div class="col-7 col-md-7">
                 <h2 style="font-family:'Microsoft YaHei';color:rgba(21, 34, 218, 0.904)">
                     Hello, 
                     {% if name %}
                     {{ name }}!
                     {% else %}
-                    tourist!
+                    tourist! This is a job searching site.
                     {% endif %}
                 </h2>
             </div>
+            <div class="col-2 col-md-2" style="margin-top:1%;">
+                {% if role == 2 %}
+                <form method="POST" class="col-md-2">
+                    <button type="submit" class="btn" name="manage_posts" value="manage_posts"
+                    style="font-size:16px;background-color:#6ad455;">
+                        Job Post Management
+                    </button>
+                </form>
+                {% elif role == 3 %}
+                <form method="POST" class="col-md-2">
+                    <button type="submit" class="btn" name="manage_users" value="manage_users"
+                    style="font-size:16px;background-color:#e26837;width:200px;">
+                        User Management
+                    </button>
+                </form>
+                {% endif %}
+            </div>
             <div class="col-3 col-md-3" style="margin-top:1%;">
+                {% if role > 0 %}
                 <form method="POST" class="col-md-2">
                     <button type="submit" class="btn" name="show_favors" value="favors"
                     style="font-size:16px;background-color:#1adfe6;">
@@ -36,6 +54,20 @@
                         Log out
                     </button>
                 </form>
+                {% else %}
+                <form method="POST" class="col-md-2">
+                    <button type="submit" class="btn" name="login" value="login"
+                    style="font-size:16px;background-color:#519ff8;width:128px;">
+                        Log in
+                    </button>
+                </form>
+                <form method="POST" class="col-md-1 col-md-offset-4">
+                    <button type="submit" class="btn" name="register" value="register"
+                    style="font-size:16px;background-color:#1edb18;width:120px;">
+                        Register
+                    </button>
+                </form>
+                {% endif %}
             </div>
         </div>
 
@@ -116,7 +148,7 @@
                         </select>
                     </div>
                     <div class="col-sm-1">
-                        <button type="submit" id="submit_1" class="btn" tabindex="1" style="font-size:12px;background-color:#519ff8;">
+                        <button type="submit" id="submit_1" class="btn" tabindex="1" style="font-size:14px;background-color:#519ff8;">
                             Reorganize
                         </button>
                     </div>
