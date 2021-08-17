@@ -64,7 +64,6 @@
                 </tr>
             </thead>
             <tbody>
-                {% if posts %}
                 {% for post in posts %}
                 <tr id="tr-id-{{loop.index}}" class="tr-class-{{loop.index}}"
                 data-title="bootstrap table" data-object='{"key": "value"}'>
@@ -85,7 +84,6 @@
                     </td>
                 </tr>
                 {% endfor %}
-                {% endif %}
             </tbody>
         </table>
 

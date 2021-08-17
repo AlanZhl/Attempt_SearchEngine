@@ -18,9 +18,10 @@ jobs = Blueprint("jobs", __name__)
 @jobs.route("/", methods=["POST", "GET"])
 def job_searching():
     posts = session.get("search_results")
+    if posts == None: posts = []    # ensure var "posts" is a list (iterable)
+
     if request.method == "POST":
         info = request.form
-        print(info)
         keys = info.keys()
 
         # case 1: log out from the current user
@@ -61,7 +62,7 @@ def job_searching():
         if "favor" in keys or "unfavor" in keys:
             id_str = request.cookies.get("favored_posts")
             resp = make_response(render_template("job_search.html", name=session.get("user_name"), posts=posts))
-            if posts:
+            if posts != []:
                 # "favored_posts" are splitted with "_"
                 if "favor" in keys:
                     val = int(info.get("favor"))
@@ -86,7 +87,7 @@ def job_searching():
         # case 5: receiving response from the filters or sorters
         else:
             operated_results = posts
-            if operated_results:
+            if operated_results != []:
                 for key, val in request.form.items():    # different filters and sorters can add up
                     operation, kw = key.split("_")
                     if operation == "filter":
@@ -111,7 +112,7 @@ def job_searching():
             recommend_query["query"]["multi_match"]["query"] = ", ".join(hotspots)
             response = es.search(index="index_jobposts", body=recommend_query)["hits"]["hits"]
             filtered_response = []
-            cnt = 0
+            cnt = 0    # show 10 recommended posts a time at most
             for record in response:
                 if record["_source"]["post_id"] not in favored_list:
                     cnt += 1

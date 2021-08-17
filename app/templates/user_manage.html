@@ -52,10 +52,10 @@
                     <div class="col-md-2">
                         <select class="form-control" name="filter_role">
                             <option disabled="disabled" selected="selected">(by role)</option>
+                            <option value="all"> All </option>
                             <option value="jobseeker"> Job Seeker </option>
                             <option value="company"> Company </option>
                             <option value="admin"> Administrater </option>
-                            <option value="all"> All </option>
                         </select>
                     </div>
                     <label class="col-md-1 control-label"> Sort </label>
@@ -98,7 +98,6 @@
                 </tr>
             </thead>
             <tbody>
-                {% if users %}
                 {% for user in users %}
                 <tr id="tr-id-{{loop.index}}" class="tr-class-{{loop.index}}" data-title="bootstrap table" data-object='{"key": "value"}'>
                     <td data-value="content_id"> {{ user["user_id"] }} </td>
@@ -126,7 +125,6 @@
                     {% endif %}
                 </tr>
                 {% endfor %}
-                {% endif %}
             </tbody>
         </table>
 

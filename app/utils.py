@@ -39,6 +39,18 @@ def checkByEmail(email, password):
     return errors
 
 
+# check if the job post with post_id "id" already exists in ES
+def checkESPost(es, id):
+    query = {
+        "query": {
+            "match_phrase": {
+                "post_id": id
+            }
+        }
+    }
+    return es.search(index="index_jobposts", body=query)["hits"]["total"]["value"] > 0
+
+
 # get the corresponding job post records from MySQL with the searching result
 def get_post_MySQL(response):
     idx = 0
@@ -70,18 +82,6 @@ def create_post(record):
     post["description"] = record.description
 
     return post
-
-
-# check if the job post with post_id "id" already exists in ES
-def checkESPost(es, id):
-    query = {
-        "query": {
-            "match_phrase": {
-                "post_id": id
-            }
-        }
-    }
-    return es.search(index="index_jobposts", body=query)["hits"]["total"]["value"] > 0
 
 
 # generate a job post in ES-required format
@@ -285,6 +285,7 @@ def transfer_history_2dict(history_str):
     history_dict = {}
     if history_str:
         items = history_str.split("&")
+        print(items)
         for item in items:
             if item != "":
                 key, val = item.split("_")

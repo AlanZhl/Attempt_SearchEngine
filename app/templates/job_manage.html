@@ -25,11 +25,11 @@
                     <div class="col-md-3">
                         <select class="form-control" name="filter_date">
                             <option disabled="disabled" selected="selected">(by date)</option>
+                            <option value=1000> all </option>
                             <option value=1> within 24 hours </option>
                             <option value=3> within 3 days </option>
                             <option value=7> within 7 days </option>
                             <option value=30> within 1 month </option>
-                            <option value=1000> all </option>
                         </select>
                     </div>
                     <label class="col-md-1 control-label"> Sort </label>
@@ -52,7 +52,7 @@
         <div class="col-md-10 col-md-offset-5">
             <form method="POST">
                 <button type="submit" class="btn" 
-                name="create" value="new" style="font-size:16px;background-color:#1edb18;"> 
+                name="create" value="new" style="margin-bottom:3%;font-size:16px;background-color:#1edb18;"> 
                     Create a new job post! 
                 </button>
             </form>
@@ -75,7 +75,6 @@
                 </tr>
             </thead>
             <tbody>
-                {% if posts %}
                 {% for post in posts %}
                 <tr id="tr-id-{{loop.index}}" class="tr-class-{{loop.index}}"
                 data-title="bootstrap table" data-object='{"key": "value"}'>
@@ -95,7 +94,6 @@
                     </td>
                 </tr>
                 {% endfor %}
-                {% endif %}
             </tbody>
         </table>
 

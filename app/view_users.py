@@ -67,15 +67,16 @@ def user_manage():
     users = []
     for user in raw_users:
         users.append(create_userinfo(user))
+    
     if request.method == "POST":
         try:
             request_content = request.form
-            operated_users = []
             # case 1: search (exact match)
             if "keyword" in request_content.keys():
+                operated_users = []
                 field, val = request_content.get("search_kw"), request_content["keyword"]
                 if field:
-                    if field == "userid":
+                    if field == "user_id":
                         val = int(val)
                     for user in users:
                         if user.get(field) == val:
@@ -91,7 +92,7 @@ def user_manage():
                 db.session.commit()
                 db.session.close()
                 return render_template("user_manage.html", users=users, name=session.get("user_name"))
-            # TODO (not tested, need to modify "filter_results"): case 3: filter or sort the current user list
+            # case 3: filter or sort the current user list
             else:
                 operated_users = []
                 for key, val in request.form.items():

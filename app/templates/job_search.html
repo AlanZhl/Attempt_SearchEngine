@@ -76,17 +76,17 @@
                     <div class="col-sm-2">
                         <select class="form-control" name="filter_date">Filter 1
                             <option disabled="disabled" selected="selected">(by date)</option>
+                            <option value=1000> all </option>
                             <option value=1> within 24 hours </option>
                             <option value=3> within 3 days </option>
                             <option value=7> within 7 days </option>
                             <option value=30> within 1 month </option>
-                            <option value=1000> all </option>
                         </select>
                     </div>
                     <div class="col-sm-2">
                         <select class="form-control" name="filter_salary">Filter 2
                             <option disabled="disabled" selected="selected">(by salary)</option>
-                            <option value="None"> not given </option>
+                            <option value="all"> all </option>
                             <option value="min_1000"> min salary >= $1,000 </option>
                             <option value="min_2000"> min salary >= $2,000 </option>
                             <option value="min_3000"> min salary >= $3,000 </option>
@@ -95,7 +95,7 @@
                             <option value="max_3000"> max salary >= $3,000 </option>
                             <option value="max_5000"> max salary >= $5,000 </option>
                             <option value="max_8000"> max salary >= $8,000 </option>
-                            <option value="all"> all </option>
+                            <option value="None"> salary not given </option>
                         </select>
                     </div>
                     <label class="col-sm-1 control-label"> Sort </label>
@@ -142,7 +142,6 @@
                 </tr>
             </thead>
             <tbody>
-                {% if posts %}
                 {% for post in posts %}
                 <tr id="tr-id-{{loop.index}}" class="tr-class-{{loop.index}}" data-title="bootstrap table" data-object='{"key": "value"}'>
                     <td id="td-id-{{loop.index}}" class="td-class" data-title="bootstrap table">
@@ -166,7 +165,6 @@
                     </td>
                 </tr>
                 {% endfor %}
-                {% endif %}
             </tbody>
         </table>
 
