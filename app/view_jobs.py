@@ -57,14 +57,15 @@ def job_searching():
         # case 4: receiving request from the search bar
         elif "keyword" in keys:
             # step 1) record the resulting post ids from es
+            filtered_kw = info["keyword"]
             query = Config.QUERY.copy()
-            query["query"]["multi_match"]["query"] = info["keyword"]
+            query["query"]["multi_match"]["query"] = filtered_kw
             response = es.search(index="index_jobposts", body=query)["hits"]["hits"]
             # step 2) retrieve the records from MySQL and rearrange them according to the order in id_dict (match scores)
             # TODO: store the search results temporarily at the server
             session["search_results"] = get_post_MySQL(response)
             # step 3) record the search history and render the resulting page
-            words = split_keyword(es, info["keyword"])
+            words = split_keyword(es, filtered_kw)
             history = transfer_history_2dict(request.cookies.get("search_history"))
             for word in words:
                 if history.get(word):
@@ -82,25 +83,25 @@ def job_searching():
             resp = make_response(render_template("job_search.html", \
                 name=session.get("user_name"), posts=posts, role=role))
             if posts != []:
-                # "favored_posts" are splitted with "_"
+                # "favored_posts" are splitted with "&"
                 if "favor" in keys:
                     val = int(info.get("favor"))
                     id = str(posts[val-1]["post_id"])
                     if not id_str:
                         resp.set_cookie("favored_posts", id, max_age=2592000)
                     else:
-                        id_lst = id_str.split("_")
+                        id_lst = id_str.split("&")
                         if id not in id_lst:
                             id_lst.append(id)
-                            resp.set_cookie("favored_posts", "_".join(id_lst), max_age=2592000)
+                            resp.set_cookie("favored_posts", "&".join(id_lst), max_age=2592000)
                 else:
                     val = int(info.get("unfavor"))
                     if id_str:
                         id = str(posts[val-1]["post_id"])
-                        id_lst = id_str.split("_")
+                        id_lst = id_str.split("&")
                         if id in id_lst:
                             id_lst.remove(id)
-                            resp.set_cookie("favored_posts", "_".join(id_lst), max_age=2592000)
+                            resp.set_cookie("favored_posts", "&".join(id_lst), max_age=2592000)
             return resp
 
         # case 6: receiving response from the filters or sorters
@@ -122,14 +123,14 @@ def job_searching():
         history_str = request.cookies.get("search_history")
         favors = request.cookies.get("favored_posts")
         if favors:
-            favored_str_list = favors.split("_")
+            favored_str_list = favors.split("&")
             for id in favored_str_list:
                 favored_list.append(int(id))
         if history_str:
             history_str, hotspots = get_hotspots(history_str)    # this function would change the order of history_str as well
             recommend_query = Config.QUERY.copy()
             recommend_query["size"] = 100
-            recommend_query["query"]["multi_match"]["query"] = ", ".join(hotspots)
+            recommend_query["query"]["multi_match"]["query"] = " ".join(hotspots)
             response = es.search(index="index_jobposts", body=recommend_query)["hits"]["hits"]
             filtered_response = []
             cnt = 0    # show 10 recommended posts a time at most
@@ -246,7 +247,7 @@ def show_favors():
     id_str_lst = []    # id_str_lst and posts would be used throughout the function
     posts = []
     if id_str:
-        id_str_lst = id_str.split("_")
+        id_str_lst = id_str.split("&")
         id_lst = []
         for id in id_str_lst:
             id_lst.append(int(id))
@@ -270,11 +271,9 @@ def show_favors():
                     post = posts.pop(idx)
                     id = str(post["post_id"])
                     resp = make_response(render_template("job_favors.html", name=session.get("user_name"), posts=posts))
-                    print("outside")
                     if id in id_str_lst:
-                        print("inside")
                         id_str_lst.remove(id)
-                        resp.set_cookie("favored_posts", "_".join(id_str_lst), max_age=2592000)
+                        resp.set_cookie("favored_posts", "&".join(id_str_lst), max_age=2592000)
                     return resp
             except Exception as e:
                 print(e)

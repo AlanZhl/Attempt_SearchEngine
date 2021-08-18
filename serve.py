@@ -21,6 +21,6 @@ if __name__ == "__main__":
     if os.path.exists(Config.FILE_PATH):
         shutil.rmtree(Config.FILE_PATH)
     os.mkdir(Config.FILE_PATH)
-
+    
     # run the server instance (please close the debug mode when run with a scrawling process)
     app.run(debug = True, port = 9001)

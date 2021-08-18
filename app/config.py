@@ -1,17 +1,22 @@
 import os
+import re
 
 
 class Config():
+    # database related
     SQLALCHEMY_DATABASE_URI = DATABASE_URL = "mysql+pymysql://dev:12345678@localhost/search_engine"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # session相关
-    SESSION_KEY = os.urandom(24) # 这里方便起见就随便输入个字符串，可以随机生成保存
+    # session related
+    SESSION_KEY = os.urandom(24)
     SESSION_TYPE = "filesystem"
     FILE_PATH = os.getcwd() + r"\flask_session"
     SESSION_PERMANENT = False
     SESSION_USE_SIGNER = False
     SESSION_KEY_PREFIX = 'session'
+    
+    # all legal characters for a cookie (except for "&" and "+", which are used as delimiters)
+    PATTERN = re.compile(r"[\w :!#$%'()\[\]{}\*+-./<=>?@^_`|~]")
 
     QUERY = {
         "_source": ['post_id'],

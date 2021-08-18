@@ -1,8 +1,10 @@
+import re
 from passlib.hash import bcrypt_sha256
 from datetime import date
 from elasticsearch import client
 
 from app.models import Users, JobPost, MyError
+from .config import Config
 
 
 # used for name and email checks in a registration process
@@ -110,6 +112,12 @@ def create_userinfo(raw_user):
         user["role"] = "Job Seeker"
     
     return user
+
+
+# filter the search keyword so that it only contains characters legal for a cookie
+def filter_keyword(kw):
+    legal_words = Config.PATTERN.findall(kw)
+    return " ".join(legal_words)
 
 
 # non-destructive filter from a list of displayable results (format shown in function "create_post")
@@ -233,40 +241,6 @@ def merge(lst, key, start, mid, end):
         k += 1
 
 
-    # # not selected due to its unstability
-    # def dual_pivot_quicksort(lst, start, end):
-    #     if start >= end: return
-
-    # if lst[start] < lst[end]:
-    #     lst[start], lst[end] = lst[end], lst[start]
-    # pivot_left = lst[start]
-    # pivot_right = lst[end]
-
-    # bound_left = start
-    # bound_right = end
-    # idx = start + 1
-    # while idx < bound_right:
-    #     if lst[idx] >= pivot_left:
-    #         bound_left += 1
-    #         lst[bound_left], lst[idx] = lst[idx], lst[bound_left]
-    #         idx += 1
-    #     elif lst[idx] < pivot_left and lst[idx] > pivot_right:
-    #         idx += 1
-    #     else:
-    #         while bound_right > idx and lst[bound_right] <= pivot_right:
-    #             bound_right -= 1
-    #         lst[bound_right], lst[idx] = lst[idx], lst[bound_right]
-    #         # Do not increment idx here:
-    #         # the element at --bound_right might be larger than pivot_left!
-    #         # Therefore, it is wiser to move bound_right other than idx.
-    # lst[start], lst[bound_left] = lst[bound_left], lst[start]
-    # lst[end], lst[bound_right] = lst[bound_right], lst[end]
-
-    # dual_pivot_quicksort(lst, start, bound_left - 1)
-    # dual_pivot_quicksort(lst, bound_left + 1, bound_right - 1)
-    # dual_pivot_quicksort(lst, bound_right + 1, end)
-
-
 # split a search keyword with the default analyzer adopted by "index_jobposts"
 def split_keyword(es, kw):
     body = {
@@ -284,11 +258,13 @@ def split_keyword(es, kw):
 def transfer_history_2dict(history_str):
     history_dict = {}
     if history_str:
+        # neighboring keyword and frequency pairs are splitted by "&"
         items = history_str.split("&")
         print(items)
         for item in items:
             if item != "":
-                key, val = item.split("_")
+                # key and value are splitted by "+"
+                key, val = item.split("+")
                 history_dict[key] = int(val)
     return history_dict
 
@@ -298,10 +274,11 @@ def transfer_history_2str(history_dict):
     str_list = []
     if history_dict:
         for key, val in history_dict.items():
-            str_list.append("_".join([key, str(val)]))
+            str_list.append("+".join([key, str(val)]))
     return "&".join(str_list)
 
 
+# combine the 3 most frequently searched keywords for a simple recommendation
 def get_hotspots(history_str):
     history_list = []
     hotspots = []
@@ -309,12 +286,12 @@ def get_hotspots(history_str):
     if history_str:
         history_str_list = history_str.split("&")
         for record in history_str_list:
-            key, val = record.split("_")
+            key, val = record.split("+")
             history_list.append((key, int(val)))
         hotspots = find_hotest_records(history_list, 3)
         history_str_list_new = []
         for record in history_list:
-            history_str_list_new.append("_".join([record[0], str(record[1])]))
+            history_str_list_new.append("+".join([record[0], str(record[1])]))
         history_str_new = "&".join(history_str_list_new)
     return history_str_new, hotspots
 
