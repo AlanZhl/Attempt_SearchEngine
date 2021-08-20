@@ -53,7 +53,6 @@ def login():
         user = Users.query.filter_by(name=identity).first() if mode == "name" else Users.query.filter_by(email=identity).first()
         session["user_id"] = user.user_id
         session["user_name"] = user.name
-        print(session["user_name"])
         return redirect("/")
     else:
         return render_template("login.html")

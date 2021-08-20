@@ -260,7 +260,6 @@ def transfer_history_2dict(history_str):
     if history_str:
         # neighboring keyword and frequency pairs are splitted by "&"
         items = history_str.split("&")
-        print(items)
         for item in items:
             if item != "":
                 # key and value are splitted by "+"

@@ -9,11 +9,12 @@ class Config():
 
     # session related
     SESSION_KEY = os.urandom(24)
-    SESSION_TYPE = "filesystem"
-    FILE_PATH = os.getcwd() + r"\flask_session"
+    SESSION_TYPE = "redis"
     SESSION_PERMANENT = False
     SESSION_USE_SIGNER = False
-    SESSION_KEY_PREFIX = 'session'
+    SESSION_KEY_PREFIX = 'session_'
+    REDIS_HOST = "localhost"
+    REDIS_PORT = 6379
     
     # all legal characters for a cookie (except for "&" and "+", which are used as delimiters)
     PATTERN = re.compile(r"[\w :!#$%'()\[\]{}\*+-./<=>?@^_`|~]")
