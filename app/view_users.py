@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, session, redirect
 
-from app.utils import checkByEmail, checkByName, checkExistence, create_userinfo, filter_results, sort_results
+from app.utils import checkByEmail, checkByName, checkExistence, \
+                    create_userinfo, filter_results, sort_results
 from app.models import db, Users, Permissions
 from app.common import permission_check
 

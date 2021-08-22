@@ -1,5 +1,7 @@
+import redis
+
 from app import create_app, db, es
-from app.models import JobPost
+from app.models import JobPost, redis_pool
 from elasticsearch import client
 
 
@@ -51,10 +53,14 @@ def test_ES_analyze(kw):
 
 # mysql query test
 def test_MySQL_query():
-    posts = JobPost.query.filter(JobPost.post_id.in_([16, 17]))
+    # posts = JobPost.query.filter(JobPost.post_id.in_([16, 17]))
+    # for post in posts:
+    #     print(post.salary_min, post.salary_max, post.date)
+    #     print(type(post.salary_min), type(post.date))
+
+    posts = JobPost.query.order_by(JobPost.post_id.desc())[0:10]
     for post in posts:
-        print(post.salary_min, post.salary_max, post.date)
-        print(type(post.salary_min), type(post.date))
+        print(post.post_id, post.title)
 
 
 # create an ES index identical to the one used in the project
@@ -91,8 +97,32 @@ def create_es_test(es):
         es.indices.create(index="test_jobposts", body=mappings)
 
 
+def test_redis_hashtable():
+    r = redis.Redis(connection_pool=redis_pool)
+    # r.hset("test_history", mapping={"software": 5, "java": 1, "python": 2})
+    # print("creation succeeds!")
+    # all_history = r.hgetall("test_history")
+    # print(all_history, type(all_history))
+    # r.hincrby("test_history", "software", 1)
+    # print(r.hgetall("test_history"))
+    key_lst = r.keys("session_*")
+    print(key_lst)
+    if key_lst:
+        r.delete(*key_lst)
+    print(r.keys("session_*"))
+
+
+def test_redis_string():
+    r = redis.Redis(connection_pool=redis_pool)
+    r.set("test_history", "java_python_test_测试")
+    retrieve = r.get("test_history")
+    if retrieve:
+        retrieve = retrieve.decode("utf-8")
+    print(retrieve, type(retrieve))
+
 
 if __name__ == "__main__":
     #test_ES_create(123, "software engineer_for test", "test_company", "test description.")
-    # test_MySQL_query()
-    test_ES_analyze("software, engineer, java, Java")
+    test_MySQL_query()
+    # test_ES_analyze("software, engineer, java, Java")
+    # test_redis_string()

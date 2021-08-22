@@ -323,3 +323,41 @@ def find_hotest_records_helper(records, start, end, num):
             find_hotest_records_helper(records, bound + 1, end, num)
         else:
             find_hotest_records_helper(records, start, bound - 1, num)
+
+
+# generate recommendation posts from a list of keywords
+def gen_recommendations(es, word_lst, filter_lst):
+    recommend_query = Config.QUERY.copy()
+    recommend_query["size"] = 100
+    recommend_query["query"]["multi_match"]["query"] = " ".join(word_lst)
+    response = es.search(index="index_jobposts", body=recommend_query)["hits"]["hits"]
+    filtered_response = []
+    cnt = 0    # show 10 recommended posts a time at most
+    for record in response:
+        if record["_source"]["post_id"] not in filter_lst:
+            cnt += 1
+            filtered_response.append(record)
+        if cnt == 10:
+            break
+    return get_post_MySQL(filtered_response)
+
+
+# used for general search history: move the latest searched keywords to the end of the list
+def update_all_history(all_history, words):
+    if all_history:
+        history_lst = all_history.decode("utf-8").split("&")
+        length_lst = len(history_lst)
+        for word in words:
+            for i in range(length_lst):
+                if word == history_lst[i]:
+                    history_lst.pop(i)    # ensure all the words in "words" and "history_lst" are unique
+                    break
+            history_lst.append(word)
+            length_lst = len(history_lst)
+        # keep the number of keywords <= 15
+        while length_lst > 15:
+            history_lst.pop(0)
+            length_lst -= 1
+        return "&".join(history_lst)
+    else:
+        return "&".join(words) if words != [] else None

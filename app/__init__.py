@@ -9,6 +9,7 @@ from app.view_jobs import jobs
 from app.view_users import users
 from app.models import db, es, Roles, create_es
 from app.common import Redis_Handler
+from app.config import Config
 
 
 def create_app(config='app.config.Config'):
@@ -29,7 +30,9 @@ def create_app(config='app.config.Config'):
 def init_redis(app):
     redis_handler = Redis_Handler()
     r = redis_handler.get_redis_instance()
-    r.flushdb()
+    session_lst = r.keys(Config.SESSION_KEY_PREFIX + "*")
+    if session_lst:
+        r.delete(*session_lst)
     app.config["SESSION_REDIS"] = r
 
 

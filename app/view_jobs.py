@@ -4,12 +4,14 @@ from elasticsearch import helpers
 from flask import Blueprint, request, session, make_response
 from flask.templating import render_template
 from werkzeug.utils import redirect
+import redis
 
-from app.models import db, es, Users, JobPost, Permissions, MyError
+from app.models import db, es, redis_pool, Users, JobPost, Permissions, MyError
 from app.common import permission_check
 from .config import Config
-from .utils import create_post, get_post_MySQL, filter_results, sort_results, genESPost, \
-                split_keyword, transfer_history_2dict, transfer_history_2str, get_hotspots
+from .utils import create_post, gen_recommendations, get_post_MySQL, filter_results, \
+                    sort_results, genESPost, split_keyword, transfer_history_2dict, \
+                    transfer_history_2str, get_hotspots, update_all_history
 
 
 
@@ -62,7 +64,6 @@ def job_searching():
             query["query"]["multi_match"]["query"] = filtered_kw
             response = es.search(index="index_jobposts", body=query)["hits"]["hits"]
             # step 2) retrieve the records from MySQL and rearrange them according to the order in id_dict (match scores)
-            # TODO: store the search results temporarily at the server
             session["search_results"] = get_post_MySQL(response)
             # step 3) record the search history and render the resulting page
             words = split_keyword(es, filtered_kw)
@@ -75,6 +76,12 @@ def job_searching():
             resp = make_response(render_template("job_search.html", \
                 name=session.get("user_name"), posts=session["search_results"], role=role))
             resp.set_cookie("search_history", transfer_history_2str(history), max_age=2592000)
+            # TODO: step 4) record the search to redis for long-term recording as well
+            redis_instance = redis.Redis(connection_pool=redis_pool, decode_responses=True)
+            all_history = redis_instance.get("search_history_all")
+            new_history = update_all_history(all_history, words)
+            if new_history:
+                redis_instance.set("search_history_all", new_history)
             return resp
 
         # case 5: favor / unfavor a job post (stored in cookies)
@@ -116,6 +123,7 @@ def job_searching():
                         operated_results = sort_results(operated_results, kw, val)    # !! destructive
             return render_template("job_search.html", \
                 name=session.get("user_name"), posts=operated_results, role=role)
+    
     # get request processing (recommendation)
     else:
         recommend_posts = []
@@ -126,21 +134,23 @@ def job_searching():
             favored_str_list = favors.split("&")
             for id in favored_str_list:
                 favored_list.append(int(id))
+        # case 1: local search history found: use the 3 most frequently used keywords for recommendation
         if history_str:
             history_str, hotspots = get_hotspots(history_str)    # this function would change the order of history_str as well
-            recommend_query = Config.QUERY.copy()
-            recommend_query["size"] = 100
-            recommend_query["query"]["multi_match"]["query"] = " ".join(hotspots)
-            response = es.search(index="index_jobposts", body=recommend_query)["hits"]["hits"]
-            filtered_response = []
-            cnt = 0    # show 10 recommended posts a time at most
-            for record in response:
-                if record["_source"]["post_id"] not in favored_list:
-                    cnt += 1
-                    filtered_response.append(record)
-                if cnt == 10:
-                    break
-            recommend_posts = get_post_MySQL(filtered_response)
+            recommend_posts = gen_recommendations(es, hotspots, favored_list)
+        else:
+            redis_instance = redis.Redis(connection_pool=redis_pool)
+            history_all = redis_instance.get("search_history_all")
+            # case 2: search history for all users found: use the latest three keywords to generate recommendation
+            if history_all:
+                history_lst = history_all.decode("utf-8").split("&")
+                latest_words = history_lst[-1:-4:-1]
+                recommend_posts = gen_recommendations(es, latest_words, [])
+            # case 3: use the latest 10 posts for recommendation
+            else:
+                posts = JobPost.query.order_by(JobPost.post_id.desc())[0:10]
+                for post in posts:
+                    recommend_posts.append(create_post(post))
         return render_template("job_search.html", \
             name=session.get("user_name"), posts=recommend_posts, role=role)
 
