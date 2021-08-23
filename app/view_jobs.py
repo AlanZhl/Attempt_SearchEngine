@@ -1,5 +1,3 @@
-from app.view_users import register
-import elasticsearch
 from elasticsearch import helpers
 from flask import Blueprint, request, session, make_response
 from flask.templating import render_template
@@ -65,23 +63,24 @@ def job_searching():
             response = es.search(index="index_jobposts", body=query)["hits"]["hits"]
             # step 2) retrieve the records from MySQL and rearrange them according to the order in id_dict (match scores)
             session["search_results"] = get_post_MySQL(response)
-            # step 3) record the search history and render the resulting page
-            words = split_keyword(es, filtered_kw)
-            history = transfer_history_2dict(request.cookies.get("search_history"))
-            for word in words:
-                if history.get(word):
-                    history[word] += 1
-                else:
-                    history[word] = 1
             resp = make_response(render_template("job_search.html", \
                 name=session.get("user_name"), posts=session["search_results"], role=role))
-            resp.set_cookie("search_history", transfer_history_2str(history), max_age=2592000)
-            # TODO: step 4) record the search to redis for long-term recording as well
-            redis_instance = redis.Redis(connection_pool=redis_pool, decode_responses=True)
-            all_history = redis_instance.get("search_history_all")
-            new_history = update_all_history(all_history, words)
-            if new_history:
-                redis_instance.set("search_history_all", new_history)
+            if session["search_results"] != []:    # avoid recording null searches
+                # step 3) record the search history and render the resulting page
+                words = split_keyword(es, filtered_kw)
+                history = transfer_history_2dict(request.cookies.get("search_history"))
+                for word in words:
+                    if history.get(word):
+                        history[word] += 1
+                    else:
+                        history[word] = 1
+                resp.set_cookie("search_history", transfer_history_2str(history), max_age=2592000)
+                # step 4) record the search to redis for long-term recording as well
+                redis_instance = redis.Redis(connection_pool=redis_pool, decode_responses=True)
+                all_history = redis_instance.get("search_history_all")
+                new_history = update_all_history(all_history, words)
+                if new_history:
+                    redis_instance.set("search_history_all", new_history)
             return resp
 
         # case 5: favor / unfavor a job post (stored in cookies)
@@ -134,10 +133,15 @@ def job_searching():
             favored_str_list = favors.split("&")
             for id in favored_str_list:
                 favored_list.append(int(id))
+        
         # case 1: local search history found: use the 3 most frequently used keywords for recommendation
         if history_str:
-            history_str, hotspots = get_hotspots(history_str)    # this function would change the order of history_str as well
+            history_str_new, hotspots = get_hotspots(history_str)    # this function would change the order of history_str as well
             recommend_posts = gen_recommendations(es, hotspots, favored_list)
+            resp = make_response(render_template("job_search.html", \
+                name=session.get("user_name"), posts=recommend_posts, role=role))
+            resp.set_cookie("search_history", history_str_new, max_age=2592000)
+            return resp
         else:
             redis_instance = redis.Redis(connection_pool=redis_pool)
             history_all = redis_instance.get("search_history_all")
@@ -151,8 +155,8 @@ def job_searching():
                 posts = JobPost.query.order_by(JobPost.post_id.desc())[0:10]
                 for post in posts:
                     recommend_posts.append(create_post(post))
-        return render_template("job_search.html", \
-            name=session.get("user_name"), posts=recommend_posts, role=role)
+            return render_template("job_search.html", \
+                name=session.get("user_name"), posts=recommend_posts, role=role)
 
 
 @jobs.route("/job_manage", methods=["POST", "GET"])

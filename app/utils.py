@@ -1,4 +1,3 @@
-import re
 from passlib.hash import bcrypt_sha256
 from datetime import date
 from elasticsearch import client
@@ -295,11 +294,14 @@ def get_hotspots(history_str):
     return history_str_new, hotspots
 
 
+# this function changes the order of items in "records"
 def find_hotest_records(records, num):
     length = len(records)
     if num < 1 or num > length:
         num = length
         
+    # for a common case in which the top "num" elements stays the same
+    records[0], records[num - 1] = records[num - 1], records[0]
     find_hotest_records_helper(records, 0, length-1, num)
     
     hotspots = [""] * num
@@ -309,7 +311,7 @@ def find_hotest_records(records, num):
 
 
 def find_hotest_records_helper(records, start, end, num):
-    if start < end:
+    while start < end:
         pivot = records[start][1]
         bound = start
         for i in range(start + 1, end + 1):
@@ -318,11 +320,11 @@ def find_hotest_records_helper(records, start, end, num):
                 records[i], records[bound] = records[bound], records[i]
         records[start], records[bound] = records[bound], records[start]
         if bound + 1 == num:
-            return
+            break
         elif bound + 1 < num:
-            find_hotest_records_helper(records, bound + 1, end, num)
+            start = bound + 1
         else:
-            find_hotest_records_helper(records, start, bound - 1, num)
+            end = bound - 1
 
 
 # generate recommendation posts from a list of keywords
