@@ -13,7 +13,8 @@ def create_es(es):
                 },
                 "company": {
                     "type": "text",
-                    "index": True
+                    "index": True,
+                    "analyzer": "default"
                 },
                 "description": {
                     "type": "text",

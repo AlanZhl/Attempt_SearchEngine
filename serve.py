@@ -1,10 +1,5 @@
 from app import create_app
 from threads import ScrawlerThread
-import os
-import shutil
-
-
-from app.config import Config
 
 
 app = create_app()

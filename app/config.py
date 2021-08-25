@@ -26,7 +26,7 @@ class Config():
             "multi_match": {
                 "query": "software",
                 "type": "best_fields",
-                "fields": ["title", "description"],
+                "fields": ["title", "company", "description"],
                 "tie_breaker": 0.3
             }
         }

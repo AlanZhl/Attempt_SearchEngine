@@ -190,25 +190,3 @@ def create_jobposts_ES(es, posts):
     except Exception as e:
         MyError.display("Scrawler Error" + MyError.ES_CREATE_FAIL + "fail to create a page of posts in ES.")
         print(e)
-
-
-# def genESPost(post, id):
-#     esPost = {}
-#     esPost["_index"] = "index_jobposts"
-#     esPost["post_id"] = id
-#     esPost["title"] = post["title"]
-#     esPost["company"] = post["company"]
-#     esPost["description"] = post["snippet"]
-#     return esPost
-
-
-# def checkESPost(es, id):
-#     query = {
-#         "query": {
-#             "match_phrase": {
-#                 "post_id": id
-#             }
-#         }
-#     }
-#     return es.search(index="index_jobposts", body=query)["hits"]["total"]["value"] > 0
-
