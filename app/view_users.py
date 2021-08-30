@@ -51,7 +51,8 @@ def login():
 
         if len(errors) > 0:
             return render_template("login.html", errors=errors)
-        user = Users.query.filter_by(name=identity).first() if mode == "name" else Users.query.filter_by(email=identity).first()
+        user = Users.query.filter_by(name=identity).first() if mode == "name" \
+                else Users.query.filter_by(email=identity).first()
         session["user_id"] = user.user_id
         session["user_name"] = user.name
         return redirect("/")

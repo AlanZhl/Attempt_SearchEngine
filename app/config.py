@@ -30,4 +30,4 @@ class Config():
                 "tie_breaker": 0.3
             }
         }
-    }    # return 200 results a time in real practice
+    }
