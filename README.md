@@ -22,7 +22,7 @@ Meanwhile, the job searching platform generally provides the following functions
 ## Infrastructure
 The overall project is written in __Python__, and supported by __Flask__.
 
-The web crawler uses Selenium to simulate user login and to retrieve the static / dynamic contents from the original website. Once the contents are collected, they are proceeded locally with Beautiful Soup (bs4).
+The web crawler uses Selenium to retrieve the static / dynamic contents from the original website. Once the contents are collected, they are proceeded locally with Beautiful Soup (bs4).
 
 The front-end pages are displayed as html files with CSS styles. Bootstrap is chosen for page rendering. The results of interaction between front-end and back-end APIs are reflected in web pages with the help of Jinja2 template rendering engine, which is provided by Flask.
 
