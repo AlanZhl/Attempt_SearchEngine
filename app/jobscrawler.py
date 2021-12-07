@@ -13,7 +13,7 @@ from app.models import MyError
 from .utils import genESPost, checkESPost
 
 
-driver_path = r"C:/Users/72337/Desktop/project/repo/searchEngine/Attempt_SearchEngine/app/browser_drivers"
+driver_path = r"C:\Users\72337\Desktop\test\browser_drivers"
 # upon any update of "required field", add the respective processing method in \
 # "getElement", "create_jobposts_MySQL", "create_jobposts_ES" and "getESPost" as well
 required_fields = ["title", "link", "company", "salary", "date", "snippet"]
