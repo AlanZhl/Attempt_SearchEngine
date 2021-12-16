@@ -2,3 +2,6 @@ __pycache__/
 /flask_session
 /app/browser_drivers
 /geckodriver.log
+/instruction reminder.txt
+/log
+*.pem

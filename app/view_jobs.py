@@ -141,6 +141,7 @@ def job_searching():
             resp = make_response(render_template("job_search.html", \
                 name=session.get("user_name"), posts=recommend_posts, role=role))
             resp.set_cookie("search_history", history_str_new, max_age=2592000)
+            session["search_results"] = recommend_posts
             return resp
         else:
             redis_instance = redis.Redis(connection_pool=redis_pool)
@@ -155,6 +156,7 @@ def job_searching():
                 posts = JobPost.query.order_by(JobPost.post_id.desc())[0:10]
                 for post in posts:
                     recommend_posts.append(create_post(post))
+            session["search_results"] = recommend_posts
             return render_template("job_search.html", \
                 name=session.get("user_name"), posts=recommend_posts, role=role)
 
