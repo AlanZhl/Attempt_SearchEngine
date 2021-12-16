@@ -40,36 +40,36 @@ sudo apt upgrade
 ### Step 1: install MySQL (see [more](https://dev.mysql.com/doc/mysql-apt-repo-quick-guide/en/))
 * (for centOS, please follow [[1]](https://www.mysqltutorial.org/install-mysql-centos/), [[2]](https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/linux-installation-yum-repo.html))
 ```
-a. sudo apt install mysql-server     # install mysql server
-b. sudo mysql_secure_installation utility    # more configs upon installation (also sets up the root password)
-b. sudo systemctl start mysql / service mysql start    # start service (check working status: systemctl status mysql)
-c. sudo systemctl enable mysql    # launch at reboot
-d. sudo mysql -uroot -p    # connect to mysql client
-e. (under root user) create database search_engine;    # database used by the project
-f. (under root user) create user 'dev'@'localhost' identified by 'your password';
-g. (under root user) grant all privileges on search_engine.* to 'dev'@'localhost';
+sudo apt install mysql-server     # install mysql server
+sudo mysql_secure_installation utility    # more configs upon installation (also sets up the root password)
+sudo systemctl start mysql / service mysql start    # start service (check working status: systemctl status mysql)
+sudo systemctl enable mysql    # launch at reboot
+sudo mysql -uroot -p    # connect to mysql client
+(under root user) create database search_engine;    # database used by the project
+(under root user) create user 'dev'@'localhost' identified by 'your password';
+(under root user) grant all privileges on search_engine.* to 'dev'@'localhost';
 ```
 ### Step 2: install ElasticSearch (see [more](https://www.elastic.co/guide/en/elasticsearch/reference/7.16/targz.html))
 ```
-a. wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.16.0-linux-x86_64.tar.gz
-b. wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.16.0-linux-x86_64.tar.gz.sha512
-c. shasum -a 512 -c elasticsearch-7.16.0-linux-x86_64.tar.gz.sha512    # see notice
-d. tar -xzf elasticsearch-7.16.0-linux-x86_64.tar.gz
-e. cd elasticsearch-7.16.0/    # This directory is known as $ES_HOME
-f. ./bin/elasticsearch    # run ES
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.16.0-linux-x86_64.tar.gz
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.16.0-linux-x86_64.tar.gz.sha512
+shasum -a 512 -c elasticsearch-7.16.0-linux-x86_64.tar.gz.sha512    # see notice
+tar -xzf elasticsearch-7.16.0-linux-x86_64.tar.gz
+cd elasticsearch-7.16.0/    # This directory is known as $ES_HOME
+./bin/elasticsearch    # run ES
 ```
 * _Notice_: Compares the SHA of the downloaded .tar.gz archive and the published checksum, which should output “elasticsearch-{version}-linux-x86_64.tar.gz: OK.”
 * _Problem 1_: Killed upon start: change JVM heap size to no more than half of the available memory: go to ./config/jvm.options.d, create a new jvm.options file and add “-Xms[size]”, “-Xmx[size]”.
 * _Problem 2_: cannot run elasticsearch as root user: 1) add a new user: adduser [user_name] (named as “elasticsearch” for the project), setup the passwords and other configs; 2) grant permission of elasticsearch to the new user: chown -R [user_name] [elasticsearch_directory]; 3) change from root to the new user: su [user_name]. Try again and hopefully everything would work.
 ### Step 3: install Redis
 ```
-a. wget http://download.redis.io/redis-stable.tar.gz
-b. tar xvzf redis-stable.tar.gz
-c. cd redis-stable
-d. make
-e. sudo make install    # copy both the Redis server and the command line interface into the proper places
-f. start Redis Server: redis-server
-g. use Redis Client: redis-cli
+wget http://download.redis.io/redis-stable.tar.gz
+tar xvzf redis-stable.tar.gz
+cd redis-stable
+make
+sudo make install    # copy both the Redis server and the command line interface into the proper places
+start Redis Server: redis-server
+use Redis Client: redis-cli
 ```
 * _Notice_: Might also have to install make, gcc and pkg-config
 * _Problem 1_: jemalloc error: replace `make` with `make distclean && make`, which will clear the previous residual files
