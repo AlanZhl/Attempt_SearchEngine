@@ -2,6 +2,7 @@ from operator import pos
 from app.models.jobs import JobPost
 from selenium import webdriver
 from selenium.webdriver.opera.options import Options
+from selenium.webdriver.firefox.options import Options
 import urllib
 from bs4 import BeautifulSoup
 import re
@@ -17,21 +18,23 @@ driver_path = r"C:\Users\72337\Desktop\test\browser_drivers"
 # upon any update of "required field", add the respective processing method in \
 # "getElement", "create_jobposts_MySQL", "create_jobposts_ES" and "getESPost" as well
 required_fields = ["title", "link", "company", "salary", "date", "snippet"]
+firefox_options = Options()
+firefox_options.binary_location = r"C:\Program Files\Mozilla Firefox\firefox.exe"
 
 
 # default browser: Chrome
 def init_driver(name):
     if name == "chrome":
-        driver = webdriver.Chrome(driver_path + "/chromedriver/chromedriver.exe")
+        driver = webdriver.Chrome("browser_drivers/chromedriver/chromedriver.exe")
     elif name == "edge":
-        driver = webdriver.Edge(driver_path + "/edgedriver/msedgedriver.exe")
+        driver = webdriver.Edge(driver_path + r"\edgedriver\msedgedriver.exe")
     elif name == "firefox":
-        driver = webdriver.Firefox(driver_path + "/geckodriver")
+        driver = webdriver.Firefox(options=firefox_options, executable_path="browser_drivers/geckodriver/geckodriver.exe")
     elif name == "opera":    # there's still some problems with opera
         options = Options()
-        driver = webdriver.Opera(options=options, executable_path=driver_path + "/operadriver/operadriver.exe")
+        driver = webdriver.Opera(options=options, executable_path=driver_path + r"\operadriver\operadriver.exe")
     else:
-        driver = webdriver.Chrome(driver_path + "/chromedriver/chromedriver.exe")
+        driver = webdriver.Chrome("browser_drivers/chromedriver/chromedriver.exe")
 
     return driver
 
@@ -41,7 +44,7 @@ def update_jobposts(db, es, keyword, driver_name, pageStart=0, date=1):
 
     pageStart *= 10
 
-    for page in range(pageStart, pageStart + 250, 10): # 25 pages at a time (needs modification!)
+    for page in range(pageStart, pageStart + 500, 10): # 50 pages at a time (needs modification!)
         web_content = get_webcontent(driver, keyword, date, page)
         time.sleep(random.randint(400, 600) / 1000)
         if web_content == None:
@@ -101,40 +104,42 @@ def getTitle(card):
         fieldBlock = card.find("td", class_="resultContent")
         field = fieldBlock.find("h2", class_=re.compile("^jobTitle")).find_all("span")[-1]
         fieldText = field.text.strip()
+        return fieldText
     except Exception as e:
         MyError.display("Scrawler Error", MyError.WEB_SOURCE_NULL, "failed to collect title from Indeed.")
         print(e)
-        fieldText = None
-    return fieldText
+        return None
 
 def getLink(card):
     try:
         link = card["href"]
         link = "sg.indeed.com" + link
+        return link
     except Exception as e:
         MyError.display("Scrawler Error", MyError.WEB_SOURCE_NULL, "failed to collect weblink from Indeed.")
         print(e)
-        link = None
-    return link
+        return None
 
 def getCompany(card):
     try:
         fieldBlock = card.find("td", class_="resultContent")
         field = fieldBlock.find("span", class_="companyName")
         fieldText = field.text.strip()
+        return fieldText
     except Exception as e:
         MyError.display("Scrawler Error", MyError.WEB_SOURCE_NULL, "failed to collect company from Indeed.")
         print(e)
-        fieldText = None
-    return fieldText
+        return None
 
 def getSalary(card):
-    fieldContainer = card.find("div", class_=re.compile("salary-snippet-container"))
-    # can tolerate without specified salaries!
-    if fieldContainer is None:
-        return ""
-    fieldBlock = fieldContainer.find("span", class_="salary-snippet")
-    fieldText = fieldBlock.text.strip()
+    try:
+        fieldContainer = card.find("div", class_=re.compile("salary-snippet-container"))
+        # can tolerate without specified salaries!
+        fieldBlock = fieldContainer.find("div", class_="salary-snippet")
+        fieldText = fieldBlock.text.strip()
+    except Exception as e:
+        # it is also normal if salary is not provided
+        fieldText = ""
     return fieldText
 
 def getDate(card):
@@ -142,11 +147,11 @@ def getDate(card):
         fieldContainer = card.find("table", class_="jobCardShelfContainer")
         fieldBlock = fieldContainer.find("span", class_="date")
         fieldText = fieldBlock.text.strip()
+        return fieldText
     except Exception as e:
         MyError.display("Scrawler Error", MyError.WEB_SOURCE_NULL, "failed to collect date from Indeed.")
         print(e)
-        fieldText = None
-    return fieldText
+        return None
 
 def getSnippet(card):
     try:
@@ -155,11 +160,11 @@ def getSnippet(card):
         fieldText = ""
         for text in fieldBlock.find_all("li"):
             fieldText += text.text.strip()
+        return fieldText
     except Exception as e:
         MyError.display("Scrawler Error", MyError.WEB_SOURCE_NULL, "failed to collect description from Indeed.")
         print(e)
-        fieldText = None
-    return fieldText
+        return None
 
 
 # (testing version) create a new job post with the extracted information
@@ -171,7 +176,7 @@ def create_jobposts_MySQL(db, posts):
             db.session.add(post_record)
         db.session.commit()
     except Exception as e:
-        MyError.display("Scrawler Error" + MyError.MYSQL_CREATE_FAIL + "fail to create a page of posts in MySQL.")
+        MyError.display("Scrawler Error", MyError.MYSQL_CREATE_FAIL, "fail to create a page of posts in MySQL.")
         print(e)
         db.session.rollback()
     

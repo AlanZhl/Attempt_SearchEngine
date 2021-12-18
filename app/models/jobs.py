@@ -52,6 +52,7 @@ class JobPost(db.Model):
 
     @staticmethod
     def getDate(dateString):
+        dateString = dateString[6:]    # strip the head "Posted"
         # if is posted today
         if dateString in ["今天", "刚刚发布", "Today", "Just posted"]:
             return date.today()
