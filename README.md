@@ -104,7 +104,8 @@ server {
 ```
 For reloading and management of the Nginx service:
 ```
-nginx -s reload
+nginx -c /etc/nginx/nginx.conf    # Specify which configuration file Nginx should use instead of default
+nginx -s reload                   # reload Nginx configs
 service nginx start / stop / status
 ```
 Finally, you could open the port listened to by Nginx server (5001 in this example) on the deployed remote server machine, and feel free to visit the project~
