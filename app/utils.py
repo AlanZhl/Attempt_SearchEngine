@@ -92,7 +92,7 @@ def genESPost(post, id):
     esPost["post_id"] = id
     esPost["title"] = post["title"]
     esPost["company"] = post["company"]
-    esPost["description"] = post["snippet"]
+    esPost["description"] = post["description"]
     return esPost
 
 

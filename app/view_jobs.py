@@ -3,6 +3,7 @@ from flask import Blueprint, request, session, make_response
 from flask.templating import render_template
 from werkzeug.utils import redirect
 import redis
+from time import time
 
 from app.models import db, es, redis_pool, Users, JobPost, Permissions, MyError
 from app.common import permission_check
@@ -116,10 +117,13 @@ def job_searching():
             if operated_results != []:
                 for key, val in request.form.items():    # different filters and sorters can add up
                     operation, kw = key.split("_")
+                    start_time = time()
                     if operation == "filter":
                         operated_results = filter_results(operated_results, kw, val)    # non-destructive
+                        print("Filter time (dev version): ", time() - start_time)
                     else:
                         operated_results = sort_results(operated_results, kw, val)    # !! destructive
+                        print("Sort time (dev version): ", time() - start_time)
             return render_template("job_search.html", \
                 name=session.get("user_name"), posts=operated_results, role=role)
     

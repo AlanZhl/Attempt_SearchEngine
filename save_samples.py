@@ -1,6 +1,9 @@
-from app.models import JobPost
 from datetime import date
 from csv import DictReader, DictWriter
+
+from app import db, es
+from app.models import JobPost
+from app.jobscrawler import create_jobposts_MySQL, create_jobposts_ES
 
 
 # save samples collected from job scrawler
@@ -14,6 +17,16 @@ def save_samples():
         f_csv = DictWriter(f, fieldnames=headers)
         f_csv.writeheader()
         f_csv.writerows(posts)
+
+
+def load_samples():
+    with open("samples.csv", "r", newline="", encoding="utf-8") as f:
+        f_csv = DictReader(f)
+        posts = []
+        for row in f_csv:
+            posts.append(row)
+        create_jobposts_MySQL(db, posts)
+        create_jobposts_ES(es, posts)
 
 
 # turn a MySQL record object into savable dict

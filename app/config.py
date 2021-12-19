@@ -21,7 +21,7 @@ class Config():
 
     QUERY = {
         "_source": ['post_id'],
-        "size": 200,
+        "size": 300,
         "query": {
             "multi_match": {
                 "query": "software",

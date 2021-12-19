@@ -17,7 +17,7 @@ from .utils import genESPost, checkESPost
 driver_path = r"C:\Users\72337\Desktop\test\browser_drivers"
 # upon any update of "required field", add the respective processing method in \
 # "getElement", "create_jobposts_MySQL", "create_jobposts_ES" and "getESPost" as well
-required_fields = ["title", "link", "company", "salary", "date", "snippet"]
+required_fields = ["title", "link", "company", "salary", "date", "description"]
 firefox_options = Options()
 firefox_options.binary_location = r"C:\Program Files\Mozilla Firefox\firefox.exe"
 
@@ -94,8 +94,8 @@ def getElement(card, field):
         return getSalary(card)
     elif field == "date":
         return getDate(card)
-    elif field == "snippet":
-        return getSnippet(card)
+    elif field == "description":
+        return getDescription(card)
 
 
 # toolbox for getTitle()
@@ -146,14 +146,14 @@ def getDate(card):
     try:
         fieldContainer = card.find("table", class_="jobCardShelfContainer")
         fieldBlock = fieldContainer.find("span", class_="date")
-        fieldText = fieldBlock.text.strip()
+        fieldText = fieldBlock.text.strip()[6:]
         return fieldText
     except Exception as e:
         MyError.display("Scrawler Error", MyError.WEB_SOURCE_NULL, "failed to collect date from Indeed.")
         print(e)
         return None
 
-def getSnippet(card):
+def getDescription(card):
     try:
         fieldContainer = card.find("table", class_="jobCardShelfContainer")
         fieldBlock = fieldContainer.find("div", class_="job-snippet")
@@ -172,11 +172,11 @@ def create_jobposts_MySQL(db, posts):
     try:
         for post in posts:
             post_record = JobPost(title=post["title"], link=post["link"], company=post["company"], \
-                salary=post["salary"], date=post["date"], description=post["snippet"])
+                salary=post["salary"], date=post["date"], description=post["description"])
             db.session.add(post_record)
         db.session.commit()
     except Exception as e:
-        MyError.display("Scrawler Error", MyError.MYSQL_CREATE_FAIL, "fail to create a page of posts in MySQL.")
+        MyError.display("Bulk loading Error", MyError.MYSQL_CREATE_FAIL, "fail to create a page of posts in MySQL.")
         print(e)
         db.session.rollback()
     
@@ -193,5 +193,5 @@ def create_jobposts_ES(es, posts):
                 es_posts.append(es_post)
         elasticsearch.helpers.bulk(es, es_posts)
     except Exception as e:
-        MyError.display("Scrawler Error" + MyError.ES_CREATE_FAIL + "fail to create a page of posts in ES.")
+        MyError.display("Bulk loading Error", MyError.ES_CREATE_FAIL, "fail to create a page of posts in ES.")
         print(e)
