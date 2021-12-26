@@ -24,6 +24,7 @@ def load_samples():
         f_csv = DictReader(f)
         posts = []
         for row in f_csv:
+            print(row)
             posts.append(row)
         create_jobposts_MySQL(db, posts)
         create_jobposts_ES(es, posts)
@@ -44,7 +45,7 @@ def transfer_mysql_2dict(record):
         post["salary"] = " - ".join(["$"+str(salary_min), "$"+str(salary_max)])
     date_diff = (date.today() - record.date).days
     if date_diff == 0:
-        post["date"] = "today"
+        post["date"] = "Today"
     else:
         post["date"] = str(date_diff) + " days ago"
     post["description"] = record.description
