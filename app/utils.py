@@ -71,7 +71,7 @@ def create_post(record):
     post = {}
     post["post_id"] = record.post_id
     post["title"] = record.title
-    post["link"] = "https://" + record.link if record.link else None
+    post["link"] = record.link if record.link else None
     post["company"] = record.company
     post["salary_min"] = record.salary_min if record.salary_min > 0 else record.salary_max
     post["salary_max"] = record.salary_max if record.salary_max > 0 else record.salary_min
