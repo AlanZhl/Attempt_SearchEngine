@@ -17,8 +17,8 @@ if __name__ == "__main__":
 
     # # opt to load samples from "samples.csv"
     # save_samples()
-    load_samples()
+    # load_samples()
 
     
     # run the server instance (please close the debug mode when run with a scrawling process)
-    app.run(debug = False, host="0.0.0.0", port = 9001)
+    app.run(debug = True, host="0.0.0.0", port = 9001)

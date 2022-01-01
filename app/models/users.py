@@ -16,7 +16,7 @@ class Users(db.Model):
     email = db.Column(db.String(100), unique = True, index=True)
     role_id = db.Column(db.Integer)
     password = db.Column(db.String(128))
-    # search_history: stored as cookies
+    search_history = db.Column(db.Text)
 
     def __init__(self, name, email, role, password):
         self.name = name
@@ -28,6 +28,7 @@ class Users(db.Model):
         else:
             self.role_id = 1
         self.password = bcrypt_sha256.encrypt(str(password))
+        self.search_history = ""
 
 
 class Roles(db.Model):

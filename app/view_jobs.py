@@ -34,9 +34,8 @@ def job_searching():
             if "logout" in keys:
                 # when attempting to logout, the session and cookies of the former user would be cleared!
                 if session.get("user_id"): session.clear()
-                resp = make_response(redirect("/login"))
+                resp = make_response(redirect("/"))
                 resp.delete_cookie("favored_posts")
-                resp.delete_cookie("search_history")
                 return resp
             else:
                 return redirect("/job_favors")
@@ -69,14 +68,18 @@ def job_searching():
             if session["search_results"] != []:    # avoid recording null searches
                 # step 3) record the search history and render the resulting page
                 words = split_keyword(es, filtered_kw)
-                history = transfer_history_2dict(request.cookies.get("search_history"))
+                history = transfer_history_2dict(session.get("search_history"))
                 for word in words:
                     if history.get(word):
                         history[word] += 1
                     else:
                         history[word] = 1
-                resp.set_cookie("search_history", transfer_history_2str(history), max_age=2592000)
-                # step 4) record the search to redis for long-term recording as well
+                if session.get("user_id"):
+                    session["search_history"] = transfer_history_2str(history)
+                    db.session.query(Users).filter_by(user_id=session["user_id"]).update({"search_history" : session["search_history"]})
+                    db.session.commit()
+                    db.session.close()
+                # step 4) record the search to redis for shared search histories as well
                 redis_instance = redis.Redis(connection_pool=redis_pool, decode_responses=True)
                 all_history = redis_instance.get("search_history_all")
                 new_history = update_all_history(all_history, words)
@@ -131,7 +134,7 @@ def job_searching():
     else:
         recommend_posts = []
         favored_list = []
-        history_str = request.cookies.get("search_history")
+        history_str = session.get("search_history")
         favors = request.cookies.get("favored_posts")
         if favors:
             favored_str_list = favors.split("&")
@@ -144,7 +147,10 @@ def job_searching():
             recommend_posts = gen_recommendations(es, hotspots, favored_list)
             resp = make_response(render_template("job_search.html", \
                 name=session.get("user_name"), posts=recommend_posts, role=role))
-            resp.set_cookie("search_history", history_str_new, max_age=2592000)
+            session["search_history"] = history_str_new
+            db.session.query(Users).filter_by(user_id=session["user_id"]).update({"search_history" : history_str_new})
+            db.session.commit()
+            db.session.close()
             session["search_results"] = recommend_posts
             return resp
         else:

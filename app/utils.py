@@ -253,7 +253,7 @@ def split_keyword(es, kw):
     return words
     
 
-# transfer a search history from cookies to python dict
+# transfer a search history from string to python dict
 def transfer_history_2dict(history_str):
     history_dict = {}
     if history_str:
@@ -267,13 +267,13 @@ def transfer_history_2dict(history_str):
     return history_dict
 
 
-# transfer a search history from python dict to a cookie string
+# transfer a search history from python dict to a string (for storage in )
 def transfer_history_2str(history_dict):
-    str_list = []
+    word_list = []
     if history_dict:
         for key, val in history_dict.items():
-            str_list.append("+".join([key, str(val)]))
-    return "&".join(str_list)
+            word_list.append("+".join([key, str(val)]))
+    return "&".join(word_list)
 
 
 # combine the 3 most frequently searched keywords for a simple recommendation
