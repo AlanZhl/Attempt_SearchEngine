@@ -11,6 +11,7 @@ class Config():
     SESSION_KEY = os.urandom(24)
     SESSION_TYPE = "redis"
     SESSION_PERMANENT = False
+    PERMANENT_SESSION_LIFETIME = 900    # session lifetime set to 15 minutes by default
     SESSION_USE_SIGNER = False
     SESSION_KEY_PREFIX = 'session_'
     REDIS_HOST = "localhost"
