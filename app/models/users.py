@@ -1,4 +1,5 @@
 from passlib.hash import bcrypt_sha256
+
 from . import db
 
 
@@ -9,6 +10,11 @@ class Permissions:
     USER_MANAGE = 0X08
 
 
+favors = db.Table("favors", db.Model.metadata,
+    db.Column("user_id", db.Integer, db.ForeignKey("users.user_id"), primary_key=True),
+    db.Column("post_id", db.Integer, db.ForeignKey("job_posts.post_id"), primary_key=True))
+
+
 class Users(db.Model):
     __tablename__ = "users"
     user_id = db.Column(db.Integer, primary_key=True)
@@ -17,6 +23,7 @@ class Users(db.Model):
     role_id = db.Column(db.Integer)
     password = db.Column(db.String(128))
     search_history = db.Column(db.Text)
+    favors = db.relationship("JobPost", secondary=favors, lazy=True)
 
     def __init__(self, name, email, role, password):
         self.name = name

@@ -23,6 +23,10 @@ class JobPost(db.Model):
         self.description = description
 
 
+    def __eq__(self, other):
+        return self.post_id == other.post_id
+
+
     @staticmethod
     def getSalary(salary):
         # if no salary is provided

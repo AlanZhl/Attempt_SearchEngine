@@ -19,12 +19,15 @@ jobs = Blueprint("jobs", __name__)
 
 @jobs.route("/", methods=["POST", "GET"])
 def job_searching():
+    # preprocessing: record the latest search / recommendation results (as "posts") and the user role
     posts = session.get("search_results")
     if posts == None: posts = []    # ensure var "posts" is a list (iterable)
+
     role = 0
     if session.get("user_id"):
         role = Users.query.filter_by(user_id=session["user_id"]).first().role_id
 
+    # process with "post" requests
     if request.method == "POST":
         info = request.form
         keys = info.keys()
@@ -32,10 +35,8 @@ def job_searching():
         # case 1: log out / show favors for a current user
         if "logout" in keys or "show_favors" in keys:
             if "logout" in keys:
-                # when attempting to logout, the session and cookies of the former user would be cleared!
                 if session.get("user_id"): session.clear()
                 resp = make_response(redirect("/"))
-                resp.delete_cookie("favored_posts")
                 return resp
             else:
                 return redirect("/job_favors")
@@ -89,29 +90,25 @@ def job_searching():
 
         # case 5: favor / unfavor a job post (stored in cookies)
         elif "favor" in keys or "unfavor" in keys:
-            id_str = request.cookies.get("favored_posts")
             resp = make_response(render_template("job_search.html", \
                 name=session.get("user_name"), posts=posts, role=role))
-            if posts != []:
+            if posts != [] and session.get("user_id"):
                 # "favored_posts" are splitted with "&"
                 if "favor" in keys:
                     val = int(info.get("favor"))
-                    id = str(posts[val-1]["post_id"])
-                    if not id_str:
-                        resp.set_cookie("favored_posts", id, max_age=2592000)
-                    else:
-                        id_lst = id_str.split("&")
-                        if id not in id_lst:
-                            id_lst.append(id)
-                            resp.set_cookie("favored_posts", "&".join(id_lst), max_age=2592000)
+                    user = Users.query.filter_by(user_id=session["user_id"]).first()
+                    post = JobPost.query.filter_by(post_id=posts[val-1]["post_id"]).first()
+                    user.favors.append(post)
+                    db.session.commit()
                 else:
                     val = int(info.get("unfavor"))
-                    if id_str:
-                        id = str(posts[val-1]["post_id"])
-                        id_lst = id_str.split("&")
-                        if id in id_lst:
-                            id_lst.remove(id)
-                            resp.set_cookie("favored_posts", "&".join(id_lst), max_age=2592000)
+                    user = Users.query.filter_by(user_id=session["user_id"]).first()
+                    post = JobPost.query.filter_by(post_id=posts[val-1]["post_id"]).first()
+                    for favor in user.favors:
+                        if favor == post:
+                            user.favors.remove(post)
+                            break
+                    db.session.commit()
             return resp
 
         # case 6: receiving response from the filters or sorters
@@ -134,12 +131,12 @@ def job_searching():
     else:
         recommend_posts = []
         favored_list = []
-        history_str = session.get("search_history")
-        favors = request.cookies.get("favored_posts")
-        if favors:
-            favored_str_list = favors.split("&")
-            for id in favored_str_list:
-                favored_list.append(int(id))
+        history_str = None
+        if session.get("user_id"):
+            user = Users.query.filter_by(user_id=session["user_id"]).first()
+            history_str = user.search_history
+            for post in user.favors:
+                favored_list.append(post.post_id)
         
         # case 1: local search history found: use the 3 most frequently used keywords for recommendation
         if history_str:
@@ -269,17 +266,8 @@ def create_jobpost():
 @permission_check(Permissions.JOB_FAVOR)
 def show_favors():
     # preprocessing: find all the favored job posts
-    id_str = request.cookies.get("favored_posts")
-    id_str_lst = []    # id_str_lst and posts would be used throughout the function
-    posts = []
-    if id_str:
-        id_str_lst = id_str.split("&")
-        id_lst = []
-        for id in id_str_lst:
-            id_lst.append(int(id))
-        raw_posts = JobPost.query.filter(JobPost.post_id.in_(id_lst))
-        for post in raw_posts:
-            posts.append(create_post(post))
+    user = Users.query.filter_by(user_id=session["user_id"]).first()
+    posts = user.favors
     
     if request.method == "POST":
         request_content = request.form
@@ -292,15 +280,16 @@ def show_favors():
         # case 2: remove a favored post from the favored list
         elif "unfavor" in keys:
             try:
-                if id_str:
-                    idx = int(request_content.get("unfavor")) - 1
-                    post = posts.pop(idx)
-                    id = str(post["post_id"])
-                    resp = make_response(render_template("job_favors.html", name=session.get("user_name"), posts=posts))
-                    if id in id_str_lst:
-                        id_str_lst.remove(id)
-                        resp.set_cookie("favored_posts", "&".join(id_str_lst), max_age=2592000)
-                    return resp
+                idx = int(request_content.get("unfavor")) - 1
+                post = posts.pop(idx)    # post content displayed at frontend
+                resp = make_response(render_template("job_favors.html", name=session.get("user_name"), posts=posts))
+                user = Users.query.filter_by(user_id=session["user_id"]).first()
+                for favor in user.favors:
+                    if favor == post:
+                        user.favors.remove(post)
+                        break
+                db.session.commit()
+                return resp
             except Exception as e:
                 print(e)
 

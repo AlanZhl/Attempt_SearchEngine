@@ -55,6 +55,7 @@ def login():
                 else Users.query.filter_by(email=identity).first()
         session["user_id"] = user.user_id
         session["user_name"] = user.name
+        # session["favors"] = user.favors
         session["search_history"] = user.search_history
         return redirect("/")
     else:
