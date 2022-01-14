@@ -12,62 +12,64 @@
     </head>
 
     <body style="font-family:'Microsoft YaHei';color:rgb(0, 0, 0)">
-        <div class="row justify-content-end">
-            <div class="col-7 col-md-7">
-                <h2 style="font-family:'Microsoft YaHei';color:rgba(21, 34, 218, 0.904)">
-                    Hello, 
-                    {% if name %}
-                    {{ name }}!
-                    {% else %}
-                    tourist! This is a job searching site.
+        <div class="maintitle">
+            <div class="row justify-content-end">
+                <div class="col-7 col-md-7">
+                    <h2 style="font-family:'Arial',serif;font-style:italic;color:rgba(21, 34, 218, 0.904)">
+                        Hello, 
+                        {% if name %}
+                            {{ name }}!
+                        {% else %}
+                            tourist! This is a job searching site.
+                        {% endif %}
+                    </h2>
+                </div>
+                <div class="col-2 col-md-2" style="margin-top:1%;">
+                    {% if role == 2 %}
+                    <form method="POST" class="col-md-2">
+                        <button type="submit" class="btn" name="manage_posts" value="manage_posts"
+                        style="font-size:16px;background-color:#6ad455;">
+                            Job Post Management
+                        </button>
+                    </form>
+                    {% elif role == 3 %}
+                    <form method="POST" class="col-md-2">
+                        <button type="submit" class="btn" name="manage_users" value="manage_users"
+                        style="font-size:16px;background-color:#e26837;width:200px;">
+                            User Management
+                        </button>
+                    </form>
                     {% endif %}
-                </h2>
-            </div>
-            <div class="col-2 col-md-2" style="margin-top:1%;">
-                {% if role == 2 %}
-                <form method="POST" class="col-md-2">
-                    <button type="submit" class="btn" name="manage_posts" value="manage_posts"
-                    style="font-size:16px;background-color:#6ad455;">
-                        Job Post Management
-                    </button>
-                </form>
-                {% elif role == 3 %}
-                <form method="POST" class="col-md-2">
-                    <button type="submit" class="btn" name="manage_users" value="manage_users"
-                    style="font-size:16px;background-color:#e26837;width:200px;">
-                        User Management
-                    </button>
-                </form>
-                {% endif %}
-            </div>
-            <div class="col-3 col-md-3" style="margin-top:1%;">
-                {% if role > 0 %}
-                <form method="POST" class="col-md-2">
-                    <button type="submit" class="btn" name="show_favors" value="favors"
-                    style="font-size:16px;background-color:#1adfe6;">
-                        My Favored Posts
-                    </button>
-                </form>
-                <form method="POST" class="col-md-1 col-md-offset-5">
-                    <button type="submit" class="btn" name="logout" value="logout"
-                    style="font-size:16px;background-color:#f37340;">
-                        Log out
-                    </button>
-                </form>
-                {% else %}
-                <form method="POST" class="col-md-2">
-                    <button type="submit" class="btn" name="login" value="login"
-                    style="font-size:16px;background-color:#519ff8;width:128px;">
-                        Log in
-                    </button>
-                </form>
-                <form method="POST" class="col-md-1 col-md-offset-4">
-                    <button type="submit" class="btn" name="register" value="register"
-                    style="font-size:16px;background-color:#1edb18;width:120px;">
-                        Register
-                    </button>
-                </form>
-                {% endif %}
+                </div>
+                <div class="col-3 col-md-3" style="margin-top:1%;">
+                    {% if role > 0 %}
+                    <form method="POST" class="col-md-2">
+                        <button type="submit" class="btn" name="show_favors" value="favors"
+                        style="font-size:16px;background-color:#1adfe6;">
+                            My Favored Posts
+                        </button>
+                    </form>
+                    <form method="POST" class="col-md-1 col-md-offset-5">
+                        <button type="submit" class="btn" name="logout" value="logout"
+                        style="font-size:16px;background-color:#f37340;">
+                            Log out
+                        </button>
+                    </form>
+                    {% else %}
+                    <form method="POST" class="col-md-2">
+                        <button type="submit" class="btn" name="login" value="login"
+                        style="font-size:16px;background-color:#519ff8;width:128px;">
+                            Log in
+                        </button>
+                    </form>
+                    <form method="POST" class="col-md-1 col-md-offset-4">
+                        <button type="submit" class="btn" name="register" value="register"
+                        style="font-size:16px;background-color:#1edb18;width:120px;">
+                            Register
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
@@ -160,7 +162,7 @@
             id="table"
             data-toggle="table"
             data-pagination="true"
-            data-page-list="[3, 5, 10, 50]"
+            data-page-list="[5, 10, 50]"
             data-detail-view="true"
             data-detail-formatter="detailFormatter"
             style="background:rgba(255,255,255,0.6);padding:10px">
