@@ -1,7 +1,7 @@
 from operator import pos
 from app.models.jobs import JobPost
 from selenium import webdriver
-from selenium.webdriver.opera.options import Options
+# from selenium.webdriver.opera.options import Options
 from selenium.webdriver.firefox.options import Options
 import urllib
 from bs4 import BeautifulSoup
@@ -30,9 +30,9 @@ def init_driver(name):
         driver = webdriver.Edge(driver_path + r"\edgedriver\msedgedriver.exe")
     elif name == "firefox":
         driver = webdriver.Firefox(options=firefox_options, executable_path="browser_drivers/geckodriver/geckodriver.exe")
-    elif name == "opera":    # there's still some problems with opera
-        options = Options()
-        driver = webdriver.Opera(options=options, executable_path=driver_path + r"\operadriver\operadriver.exe")
+    # elif name == "opera":    # there's still some problems with opera
+    #     options = Options()
+    #     driver = webdriver.Opera(options=options, executable_path=driver_path + r"\operadriver\operadriver.exe")
     else:
         driver = webdriver.Chrome("browser_drivers/chromedriver/chromedriver.exe")
 

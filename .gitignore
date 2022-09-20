@@ -4,4 +4,5 @@ __pycache__/
 /geckodriver.log
 /instruction reminder.txt
 /log
+/venv
 *.pem

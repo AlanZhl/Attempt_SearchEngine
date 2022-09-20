@@ -6,7 +6,7 @@ import redis
 from app.config import Config
 
 db = SQLAlchemy()
-es = Elasticsearch("localhost:9200")
+es = Elasticsearch("http://localhost:9200")
 # test: only used for general history recording
 redis_pool = redis.ConnectionPool(host=Config.REDIS_HOST, port=Config.REDIS_PORT)
 
